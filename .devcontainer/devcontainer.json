@@ -1,6 +1,8 @@
 {
   "name": "crypto-caddy-dev",
-  "image": "node:20-bookworm",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
 
   "customizations": {
     "vscode": {
@@ -18,6 +20,11 @@
   },
 
   "forwardPorts": [5173],
+
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind",
+    "source=${localEnv:HOME}/.claude.json,target=/home/node/.claude.json,type=bind"
+  ],
 
   "remoteUser": "node"
 }
