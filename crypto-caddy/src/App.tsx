@@ -7,6 +7,7 @@ import theme from './theme/theme';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import Dashboard from './pages/Dashboard';
 import CoinDetails from './pages/CoinDetails';
+import { Box } from '@mui/material';
 
 function App() {
   return (
@@ -16,10 +17,13 @@ function App() {
         <CssBaseline />
         <BrowserRouter>
           <CurrencyProvider>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/coin/:id" element={<CoinDetails />} />
-            </Routes>
+            {/* Set the app width and height here since it will be the same for all views. */}
+            <Box sx={{ minHeight: '100vh', width: "100vw" }}>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/coin/:id" element={<CoinDetails />} />
+              </Routes>
+            </Box>
           </CurrencyProvider>
         </BrowserRouter>
       </ThemeProvider>

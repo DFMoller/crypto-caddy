@@ -40,12 +40,12 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+    <Box sx={{ backgroundColor: 'background.default' }}>
       <Header />
       <Breadcrumbs />
 
       {loading ? (
-        <Box sx={{ maxWidth: 1600, margin: '0 auto', padding: 3 }}>
+        <Box sx={{ margin: '0 auto', padding: 3 }}>
           <LoadingSkeleton count={2} />
         </Box>
       ) : (

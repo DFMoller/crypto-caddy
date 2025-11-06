@@ -16,7 +16,7 @@ interface CoinListProps {
 
 export default function CoinList({ coins }: CoinListProps) {
   return (
-    <Box sx={{ maxWidth: 1600, margin: '0 auto', padding: 3 }}>
+    <Box sx={{ margin: '0 auto', padding: 3 }}>
       {/* Column Headers */}
       <Box
         sx={{
