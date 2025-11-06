@@ -33,6 +33,26 @@ npm run test
 npm run lint
 ```
 
+## DevContainer Setup
+
+### Playwright MCP Configuration
+To use Playwright MCP within the devcontainer, configure it with the following settings (X11 forwarding must also be set up):
+
+```json
+"playwright": {
+  "type": "stdio",
+  "command": "npx",
+  "args": [
+    "@playwright/mcp@latest",
+    "--isolated",
+    "--no-sandbox"
+  ],
+  "env": {}
+}
+```
+
+Note: The `--isolated` and `--no-sandbox` flags are required for proper operation in the containerized environment.
+
 ## Architecture & Technical Specifications
 
 ### Core Technology Stack
@@ -98,6 +118,11 @@ Key endpoints to use:
 - **Optimization**: Efficient rendering, minimal API calls
 - **Scalability**: Reusable components and patterns
 - **Design Patterns**: Proper React patterns (hooks, context, composition)
+
+### Coding Style Preferences
+- **Comments**: Always end comments with periods.
+- **Line Length**: Maximum 120 characters per line where possible.
+- **Formatting**: Use consistent spacing and indentation.
 
 ### TypeScript Requirements
 - Strict type checking enabled
