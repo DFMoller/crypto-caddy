@@ -6,10 +6,18 @@ interface LoadingSkeletonProps {
 
 export default function LoadingSkeleton({ count = 2 }: LoadingSkeletonProps) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {Array.from({ length: count }).map((_, index) => (
-        <Card key={index} sx={{ padding: 2 }}>
-          <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Card key={index} sx={{ marginBottom: 2 }}>
+          <CardContent
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              padding: 3,
+              '&:last-child': { paddingBottom: 3 },
+            }}
+          >
             {/* Coin icon skeleton */}
             <Skeleton variant="circular" width={40} height={40} />
 
