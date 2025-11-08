@@ -54,11 +54,6 @@ export default function DetailsSkeleton() {
 
         {/* Right side - Chart skeleton. */}
         <Box sx={{ flex: 1, width: '100%' }}>
-          {/* Metric selector skeleton. */}
-          <Box sx={{ marginBottom: 2 }}>
-            <Skeleton variant="rectangular" width={200} height={40} sx={{ borderRadius: 2 }} />
-          </Box>
-
           {/* Chart card skeleton. */}
           <Card
             sx={{
@@ -68,11 +63,20 @@ export default function DetailsSkeleton() {
             }}
           >
             <CardContent>
-              {/* Time range buttons skeleton. */}
-              <Box sx={{ display: 'flex', gap: 1, marginBottom: 3, justifyContent: 'flex-end' }}>
-                {['24h', '3d', '7d', '1M', '1Y', 'Max'].map((label) => (
-                  <Skeleton key={label} variant="rectangular" width={50} height={32} sx={{ borderRadius: 20 }} />
-                ))}
+              {/* Metric selector and time range buttons skeleton. */}
+              <Box sx={{ display: 'flex', gap: 2, marginBottom: 3, justifyContent: 'space-between' }}>
+                {/* Metric selector skeleton (Price/Market Cap). */}
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Skeleton variant="rectangular" width={80} height={32} sx={{ borderRadius: 20 }} />
+                  <Skeleton variant="rectangular" width={80} height={32} sx={{ borderRadius: 20 }} />
+                </Box>
+
+                {/* Time range buttons skeleton. */}
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {['24h', '3d', '7d', '1M', '1Y', 'Max'].map((label) => (
+                    <Skeleton key={label} variant="rectangular" width={50} height={32} sx={{ borderRadius: 20 }} />
+                  ))}
+                </Box>
               </Box>
 
               {/* Chart area skeleton. */}

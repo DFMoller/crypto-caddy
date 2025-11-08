@@ -1,5 +1,5 @@
 import { useState, useEffect, type FunctionComponent } from 'react';
-import { Box, Typography, Button, Container, Card, CardContent, Tabs, Tab, ButtonGroup, Avatar } from '@mui/material';
+import { Box, Typography, Button, Container, Card, CardContent, ButtonGroup, Avatar } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -228,27 +228,6 @@ const CoinDetails: FunctionComponent = () => {
 
           {/* Right side - Chart. */}
           <Box sx={{ flex: 1, width: '100%' }}>
-            {/* Metric selector (Price vs Market Cap). */}
-            <Box sx={{ marginBottom: 2 }}>
-              <Tabs
-                value={metricType}
-                onChange={(_, newValue) => setMetricType(newValue)}
-                sx={{
-                  '& .MuiTab-root': {
-                    color: '#B0B0B0',
-                    fontWeight: 500,
-                    textTransform: 'none',
-                  },
-                  '& .Mui-selected': {
-                    color: '#6750A4 !important',
-                  },
-                }}
-              >
-                <Tab label="Price" value="price" />
-                <Tab label="Market Cap" value="marketCap" />
-              </Tabs>
-            </Box>
-
             {/* Chart card. */}
             <Card
               sx={{
@@ -259,8 +238,37 @@ const CoinDetails: FunctionComponent = () => {
               }}
             >
               <CardContent>
-                {/* Time range selector buttons. */}
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 3 }}>
+                {/* Metric selector and time range selector. */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                  {/* Metric selector (Price vs Market Cap). */}
+                  <ButtonGroup variant="outlined" size="small">
+                    <Button
+                      onClick={() => setMetricType('price')}
+                      variant={metricType === 'price' ? 'contained' : 'outlined'}
+                      sx={{
+                        borderRadius: 20,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        minWidth: 80,
+                      }}
+                    >
+                      Price
+                    </Button>
+                    <Button
+                      onClick={() => setMetricType('marketCap')}
+                      variant={metricType === 'marketCap' ? 'contained' : 'outlined'}
+                      sx={{
+                        borderRadius: 20,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        minWidth: 80,
+                      }}
+                    >
+                      Market Cap
+                    </Button>
+                  </ButtonGroup>
+
+                  {/* Time range selector buttons. */}
                   <ButtonGroup variant="outlined" size="small">
                     {(['24h', '3d', '7d', '1M', '1Y', 'MAX'] as TimeRange[]).map((range) => (
                       <Button
@@ -329,7 +337,7 @@ const CoinDetails: FunctionComponent = () => {
       </Container>
     </Box>
   );
-}
+};
 
 /**
  * Props for the DataRow component.
