@@ -43,8 +43,8 @@ const Dashboard: FunctionComponent = () => {
   return (
     <Box sx={{ backgroundColor: 'background.default' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ paddingY: 2 }}>
-        <Breadcrumbs />
+      <Breadcrumbs />
+      <Container maxWidth="lg" sx={{ paddingY: 4 }}>
         <CoinListHeader />
         {loading ? <LoadingSkeleton count={2} /> : <CoinList coins={coins} />}
       </Container>
