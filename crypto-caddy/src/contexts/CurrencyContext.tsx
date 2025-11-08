@@ -24,9 +24,7 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
 
   // Read currency from URL, default to ZAR.
   const urlCurrency = searchParams.get('currency') as Currency | null;
-  const currency: Currency = urlCurrency && VALID_CURRENCIES.includes(urlCurrency)
-    ? urlCurrency
-    : 'ZAR';
+  const currency: Currency = urlCurrency && VALID_CURRENCIES.includes(urlCurrency) ? urlCurrency : 'ZAR';
 
   // Initialize URL with default currency if not present.
   useEffect(() => {
@@ -39,9 +37,5 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
     setSearchParams({ currency: newCurrency });
   };
 
-  return (
-    <CurrencyContext.Provider value={{ currency, setCurrency }}>
-      {children}
-    </CurrencyContext.Provider>
-  );
+  return <CurrencyContext.Provider value={{ currency, setCurrency }}>{children}</CurrencyContext.Provider>;
 }

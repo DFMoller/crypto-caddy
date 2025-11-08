@@ -12,14 +12,7 @@ interface CoinCardProps {
   currentPrice: number; // Always in USD (base value).
 }
 
-export default function CoinCard({
-  id,
-  name,
-  symbol,
-  image,
-  marketCap,
-  currentPrice,
-}: CoinCardProps) {
+export default function CoinCard({ id, name, symbol, image, marketCap, currentPrice }: CoinCardProps) {
   const navigate = useNavigate();
   const { currency } = useCurrency();
 

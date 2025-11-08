@@ -18,12 +18,7 @@ export default function CoinDetails() {
       <Breadcrumbs />
 
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-          sx={{ marginBottom: 3 }}
-          variant="outlined"
-        >
+        <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
           Back to Dashboard
         </Button>
 

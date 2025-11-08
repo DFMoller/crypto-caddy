@@ -3,6 +3,7 @@ import { Box, Container } from '@mui/material';
 import Header from '../components/Header';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CoinList from '../components/CoinList';
+import CoinListHeader from '../components/CoinListHeader';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 
 // Dummy data for initial implementation.
@@ -42,20 +43,13 @@ const Dashboard: FunctionComponent = () => {
   return (
     <Box sx={{ backgroundColor: 'background.default' }}>
       <Header />
-      <Container maxWidth="lg" sx={{ paddingY: 4 }}>
+      <Container maxWidth="lg" sx={{ paddingY: 2 }}>
         <Breadcrumbs />
-          {
-            loading ? (
-              <Box sx={{ margin: '0 auto', padding: 3 }}>
-                <LoadingSkeleton count={2} />
-              </Box>
-            ) : (
-              <CoinList coins={coins} />
-            )
-          }
+        <CoinListHeader />
+        {loading ? <LoadingSkeleton count={2} /> : <CoinList coins={coins} />}
       </Container>
     </Box>
   );
-}
+};
 
 export default Dashboard;

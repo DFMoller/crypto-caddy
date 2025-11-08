@@ -18,7 +18,7 @@ function App() {
         <BrowserRouter>
           <CurrencyProvider>
             {/* Set the app width and height here since it will be the same for all views. */}
-            <Box sx={{ minHeight: '100vh', width: "100vw" }}>
+            <Box sx={{ minHeight: '100vh', width: '100vw' }}>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/coin/:id" element={<CoinDetails />} />

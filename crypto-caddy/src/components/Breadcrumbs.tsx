@@ -26,13 +26,7 @@ export default function Breadcrumbs() {
               {value.charAt(0).toUpperCase() + value.slice(1)}
             </Typography>
           ) : (
-            <Link
-              key={to}
-              component={RouterLink}
-              to={to}
-              underline="hover"
-              color="inherit"
-            >
+            <Link key={to} component={RouterLink} to={to} underline="hover" color="inherit">
               {value.charAt(0).toUpperCase() + value.slice(1)}
             </Link>
           );
