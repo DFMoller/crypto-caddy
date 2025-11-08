@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Box } from '@mui/material';
+import { useState, useEffect, type FunctionComponent } from 'react';
+import { Box, Container } from '@mui/material';
 import Header from '../components/Header';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CoinList from '../components/CoinList';
@@ -25,7 +25,7 @@ const DUMMY_COINS = [
   },
 ];
 
-export default function Dashboard() {
+const Dashboard: FunctionComponent = () => {
   const [loading, setLoading] = useState(true);
   const [coins, setCoins] = useState<typeof DUMMY_COINS>([]);
 
@@ -42,15 +42,20 @@ export default function Dashboard() {
   return (
     <Box sx={{ backgroundColor: 'background.default' }}>
       <Header />
-      <Breadcrumbs />
-
-      {loading ? (
-        <Box sx={{ margin: '0 auto', padding: 3 }}>
-          <LoadingSkeleton count={2} />
-        </Box>
-      ) : (
-        <CoinList coins={coins} />
-      )}
+      <Container maxWidth="lg" sx={{ paddingY: 4 }}>
+        <Breadcrumbs />
+          {
+            loading ? (
+              <Box sx={{ margin: '0 auto', padding: 3 }}>
+                <LoadingSkeleton count={2} />
+              </Box>
+            ) : (
+              <CoinList coins={coins} />
+            )
+          }
+      </Container>
     </Box>
   );
 }
+
+export default Dashboard;
