@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -22,6 +22,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/coin/:id" element={<CoinDetails />} />
+                {/* Redirect to home when an invalid path is received. */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Box>
           </CurrencyProvider>
