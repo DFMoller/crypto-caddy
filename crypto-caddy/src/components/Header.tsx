@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Select, MenuItem, Box } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
-import { useCurrency } from '../contexts/CurrencyContext';
+import { useCurrency } from '../hooks/useCurrency';
 
 export default function Header() {
   const { currency, setCurrency } = useCurrency();
