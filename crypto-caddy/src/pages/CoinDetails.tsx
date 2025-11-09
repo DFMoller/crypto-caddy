@@ -1,5 +1,5 @@
 import { useState, useMemo, type FunctionComponent } from 'react';
-import { Box, Typography, Button, Container, Card, CardContent, ButtonGroup, Avatar } from '@mui/material';
+import { Box, Typography, Button, Container, Card, CardContent, ButtonGroup } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -181,17 +181,15 @@ const CoinDetails: FunctionComponent = () => {
 
         {/* Coin header with icon, name, and prominent price. */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
-          <Avatar
-            sx={{
+          <img
+            src={coinData.image}
+            alt={coinData.name}
+            style={{
               width: 48,
               height: 48,
-              backgroundColor: '#6750A4',
-              fontSize: '1.5rem',
-              fontWeight: 600,
+              borderRadius: '50%',
             }}
-          >
-            {coinData.symbol[0]}
-          </Avatar>
+          />
           <Box sx={{ flex: 1 }}>
             <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
               {coinData.name}
@@ -338,6 +336,9 @@ const CoinDetails: FunctionComponent = () => {
                     <XAxis
                       dataKey="timestamp"
                       stroke="#B0B0B0"
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
                       tickFormatter={(timestamp) => {
                         const date = new Date(timestamp);
                         if (timeRange === '24h' || timeRange === '3d') {
@@ -345,9 +346,11 @@ const CoinDetails: FunctionComponent = () => {
                         }
                         return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
                       }}
+                      minTickGap={30}
                     />
                     <YAxis
                       stroke="#B0B0B0"
+                      domain={['dataMin - dataMin * 0.05', 'dataMax + dataMax * 0.05']}
                       tickFormatter={(value) => {
                         if (value >= 1_000_000_000_000) {
                           return `${(value / 1_000_000_000_000).toFixed(1)}T`;

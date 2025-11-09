@@ -165,6 +165,11 @@ interface CoinGeckoDetailsResponse {
   id: string;
   symbol: string;
   name: string;
+  image: {
+    thumb: string;
+    small: string;
+    large: string;
+  };
   market_data: {
     current_price: { [currency: string]: number };
     market_cap: { [currency: string]: number };
@@ -190,6 +195,7 @@ export interface ICoinDetails {
   id: string;
   name: string;
   symbol: string;
+  image: string;
   currentPrice: number;
   marketCap: number;
   fullyDilutedValuation: number;
@@ -214,6 +220,7 @@ function transformCoinDetails(apiData: CoinGeckoDetailsResponse, currency: strin
     id: apiData.id,
     name: apiData.name,
     symbol: apiData.symbol,
+    image: apiData.image.large,
     currentPrice: apiData.market_data.current_price[currency] || 0,
     marketCap: apiData.market_data.market_cap[currency] || 0,
     fullyDilutedValuation: apiData.market_data.fully_diluted_valuation?.[currency] || 0,
