@@ -14,19 +14,15 @@ export default function Header() {
       <Toolbar>
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
           <Box
+            component="img"
+            src="/crypto-caddy-icon.png"
+            alt="Crypto Caddy Logo"
             sx={{
               width: 38,
               height: 38,
-              borderRadius: '50%',
-              backgroundColor: '#2C2C2C',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               marginRight: 2,
             }}
-          >
-            <Typography sx={{ color: '#FFFFFF', fontSize: '1.2rem' }}>₿</Typography>
-          </Box>
+          />
           <Typography variant="h6" component="div">
             Crypto Caddy
           </Typography>
