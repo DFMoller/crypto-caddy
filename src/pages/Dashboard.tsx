@@ -75,9 +75,7 @@ const Dashboard: FunctionComponent = () => {
             {data && <CoinList coins={data} />}
             {/* Loader/sentinel element for intersection observer. */}
             {data && data.length < maxCoins && (
-              <div ref={loaderRef}>
-                {isFetching && !isLoading && <InfiniteScrollLoader />}
-              </div>
+              <div ref={loaderRef}>{isFetching && !isLoading && <InfiniteScrollLoader />}</div>
             )}
           </>
         )}

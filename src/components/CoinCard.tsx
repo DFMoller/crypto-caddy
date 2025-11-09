@@ -138,6 +138,6 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
       </CardContent>
     </Card>
   );
-}
+};
 
 export default CoinCard;

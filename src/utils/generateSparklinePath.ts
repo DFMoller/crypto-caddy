@@ -1,8 +1,4 @@
-export function generateSparklinePath(
-  prices: number[],
-  width: number = 120,
-  height: number = 40
-): string {
+export function generateSparklinePath(prices: number[], width: number = 120, height: number = 40): string {
   if (!prices || prices.length === 0) return '';
 
   const min = Math.min(...prices);

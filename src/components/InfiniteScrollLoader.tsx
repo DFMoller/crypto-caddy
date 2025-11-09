@@ -22,6 +22,6 @@ const InfiniteScrollLoader: FunctionComponent = () => {
       </Typography>
     </Box>
   );
-}
+};
 
 export default InfiniteScrollLoader;

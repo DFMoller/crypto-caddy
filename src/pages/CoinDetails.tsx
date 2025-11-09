@@ -67,10 +67,7 @@ const CoinDetails: FunctionComponent = () => {
     data: coinData,
     isLoading: detailsLoading,
     error: detailsError,
-  } = useGetCoinDetailsQuery(
-    { coinId: id || 'bitcoin', currency: currency.toLowerCase() },
-    { skip: !id }
-  );
+  } = useGetCoinDetailsQuery({ coinId: id || 'bitcoin', currency: currency.toLowerCase() }, { skip: !id });
 
   // Fetch chart data from API.
   const {
@@ -235,7 +232,10 @@ const CoinDetails: FunctionComponent = () => {
             >
               <CardContent>
                 <DataRow label="Market Cap" value={formatCurrency(coinData.marketCap, currency)} />
-                <DataRow label="Fully Diluted Valuation" value={formatCurrency(coinData.fullyDilutedValuation, currency)} />
+                <DataRow
+                  label="Fully Diluted Valuation"
+                  value={formatCurrency(coinData.fullyDilutedValuation, currency)}
+                />
                 <DataRow label="24 Hour Trading Vol" value={formatCurrency(coinData.volume24h, currency)} />
                 <DataRow label="Circulating Supply" value={formatSupply(coinData.circulatingSupply)} />
                 <DataRow label="Total Supply" value={formatSupply(coinData.totalSupply)} />

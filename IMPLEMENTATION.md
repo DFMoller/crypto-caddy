@@ -25,17 +25,20 @@ Integrate CoinGecko API into the Dashboard to display live cryptocurrency data w
 ### Primary Endpoint: `/coins/markets` (Batch Fetching)
 
 **Why this endpoint?**
+
 - **Single request gets multiple coins** - Efficient batch fetching
 - **Includes all dashboard data** - Price, market cap, sparkline, changes
 - **Supports pagination** - Perfect for infinite scroll
 - **Available on free tier** - No paid plan needed
 
 **Base URL:**
+
 ```
 https://api.coingecko.com/api/v3
 ```
 
 **Request Format:**
+
 ```
 GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}&page={page}&sparkline=true&price_change_percentage=24h,7d
 ```
@@ -43,6 +46,7 @@ GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}
 **Optional:** Add `&x_cg_demo_api_key={apiKey}` query parameter or `x-cg-demo-api-key` header if API key is provided.
 
 **Query Parameters:**
+
 - `vs_currency`: "zar" | "usd" | "eur" | "btc" (selected currency)
 - `order`: "market_cap_desc" (sort by market cap, highest first)
 - `per_page`: 20 (initial) or 10 (scroll loads)
@@ -52,6 +56,7 @@ GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}
 - `x_cg_demo_api_key`: (Optional) API key from environment variable for better rate limits
 
 **API Call Optimization:**
+
 - **Initial load (20 coins)**: 1 API call
 - **Scroll load 1 (+10 coins)**: 1 API call
 - **Scroll load 2 (+10 coins)**: 1 API call
@@ -65,27 +70,27 @@ GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}
 ```typescript
 interface CoinGeckoMarketData {
   // Basic Info
-  id: string;                          // "bitcoin"
-  symbol: string;                      // "btc"
-  name: string;                        // "Bitcoin"
-  image: string;                       // URL to coin image
+  id: string; // "bitcoin"
+  symbol: string; // "btc"
+  name: string; // "Bitcoin"
+  image: string; // URL to coin image
 
   // Pricing (in selected currency)
-  current_price: number;               // Current price
-  market_cap: number;                  // Market capitalization
-  market_cap_rank: number;             // Ranking by market cap
+  current_price: number; // Current price
+  market_cap: number; // Market capitalization
+  market_cap_rank: number; // Ranking by market cap
 
   // Volume & Supply
-  total_volume: number;                // 24h trading volume
-  circulating_supply: number;          // Circulating supply
-  total_supply: number | null;         // Total supply
-  max_supply: number | null;           // Maximum supply
+  total_volume: number; // 24h trading volume
+  circulating_supply: number; // Circulating supply
+  total_supply: number | null; // Total supply
+  max_supply: number | null; // Maximum supply
   fully_diluted_valuation: number | null;
 
   // 24h Metrics
-  high_24h: number;                    // 24h high
-  low_24h: number;                     // 24h low
-  price_change_24h: number;            // Absolute price change
+  high_24h: number; // 24h high
+  low_24h: number; // 24h low
+  price_change_24h: number; // Absolute price change
   price_change_percentage_24h: number; // Percentage change
   market_cap_change_24h: number;
   market_cap_change_percentage_24h: number;
@@ -94,21 +99,21 @@ interface CoinGeckoMarketData {
   price_change_percentage_7d_in_currency?: number;
 
   // Historical Data
-  ath: number;                         // All-time high
+  ath: number; // All-time high
   ath_change_percentage: number;
-  ath_date: string;                    // ISO timestamp
-  atl: number;                         // All-time low
+  ath_date: string; // ISO timestamp
+  atl: number; // All-time low
   atl_change_percentage: number;
   atl_date: string;
 
   // Sparkline (7-day price data)
   sparkline_in_7d?: {
-    price: number[];                   // 168 data points (hourly for 7 days)
+    price: number[]; // 168 data points (hourly for 7 days)
   };
 
   // Metadata
   roi: { times: number; currency: string; percentage: number } | null;
-  last_updated: string;                // ISO timestamp
+  last_updated: string; // ISO timestamp
 }
 ```
 
@@ -126,7 +131,7 @@ interface Coin {
   priceChange24h: number;
   priceChangePercentage24h: number;
   priceChangePercentage7d: number;
-  sparklineData: number[];             // 168 hourly prices
+  sparklineData: number[]; // 168 hourly prices
   lastUpdated: string;
 }
 ```
@@ -166,6 +171,7 @@ src/
 **The app works without an API key**, but providing one improves rate limits from 5-15 calls/min to 30 calls/min guaranteed.
 
 **Create `.env` file (optional):**
+
 ```env
 # Optional: Improves rate limits (30 calls/min vs 5-15 calls/min)
 COINGECKO_API_KEY=your_demo_api_key_here
@@ -173,6 +179,7 @@ COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 ```
 
 **Create `.env.example` file:**
+
 ```env
 # Optional: Get your free demo key from https://www.coingecko.com/en/api
 # Improves rate limits from 5-15 calls/min to 30 calls/min (10,000/month cap)
@@ -181,6 +188,7 @@ COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 ```
 
 **Add to `.gitignore`:**
+
 ```
 .env
 .env.local
@@ -202,6 +210,7 @@ COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 6. Test that app works both with and without API key
 
 **Step 2: Update Type Definitions**
+
 1. Update Coin interface to include new fields
 2. Create CoinGeckoMarketData interface
 3. Create transformer function (API → App format)
@@ -211,12 +220,14 @@ COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 **Step 3: Configure apiSlice.ts**
 
 Implement RTK Query with:
+
 - Base query with CoinGecko URL
 - Conditional API key injection (only if provided)
 - Error transformation
 - Retry logic with exponential backoff
 
 **Example Configuration:**
+
 ```typescript
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 
@@ -247,6 +258,7 @@ export const coinGeckoApi = createApi({
 ```
 
 **Key Changes:**
+
 - Check if `API_KEY` exists before adding header
 - App gracefully handles missing API key
 - Works with lower rate limits (5-15 calls/min) when no key provided
@@ -254,6 +266,7 @@ export const coinGeckoApi = createApi({
 **Step 4: Create getCoinsMarkets Endpoint**
 
 Features:
+
 - Accepts currency, page, perPage parameters
 - Separate cache per currency (use `serializeQueryArgs`)
 - 60-second cache duration
@@ -261,6 +274,7 @@ Features:
 - Transform API response to App format
 
 **Example Endpoint:**
+
 ```typescript
 getCoinsMarkets: builder.query({
   query: ({ currency = 'zar', page = 1, perPage = 20 }) => ({
@@ -296,6 +310,7 @@ getCoinsMarkets: builder.query({
 ```
 
 **Step 5: Export Hooks**
+
 ```typescript
 export const { useGetCoinsMarketsQuery } = coinGeckoApi;
 ```
@@ -303,6 +318,7 @@ export const { useGetCoinsMarketsQuery } = coinGeckoApi;
 **Step 6: Add API Reducer to Store**
 
 Update `store.ts`:
+
 ```typescript
 import { coinGeckoApi } from './apiSlice';
 
@@ -310,8 +326,7 @@ export const store = configureStore({
   reducer: {
     [coinGeckoApi.reducerPath]: coinGeckoApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(coinGeckoApi.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(coinGeckoApi.middleware),
 });
 ```
 
@@ -322,6 +337,7 @@ export const store = configureStore({
 Purpose: Convert 168 price points to SVG polyline path
 
 **Features:**
+
 - Accept prices array and SVG dimensions
 - Use all 168 points (no sampling)
 - Normalize to 0-height range
@@ -329,12 +345,9 @@ Purpose: Convert 168 price points to SVG polyline path
 - Return SVG polyline points string
 
 **Example Implementation:**
+
 ```typescript
-export function generateSparklinePath(
-  prices: number[],
-  width: number = 120,
-  height: number = 40
-): string {
+export function generateSparklinePath(prices: number[], width: number = 120, height: number = 40): string {
   if (!prices || prices.length === 0) return '';
 
   const min = Math.min(...prices);
@@ -372,30 +385,28 @@ export function getSparklineTrend(prices: number[]): 'up' | 'down' | 'flat' {
 **Step 8: Update CoinCard.tsx**
 
 **Changes:**
+
 1. Add `priceChange24h`, `priceChangePercentage24h`, `priceChangePercentage7d`, `sparklineData` to props
 2. Replace static SVG sparkline with dynamic version
 3. Display both 24h and 7d price changes
 4. Color sparkline based on trend (green/red)
 
 **Example Sparkline Rendering:**
+
 ```tsx
 const sparklinePath = generateSparklinePath(props.sparklineData, 120, 40);
 const trend = getSparklineTrend(props.sparklineData);
 const sparklineColor = trend === 'up' ? '#4caf50' : trend === 'down' ? '#f44336' : '#B0B0B0';
 
 <svg width="120" height="40" viewBox="0 0 120 40">
-  <polyline
-    points={sparklinePath}
-    fill="none"
-    stroke={sparklineColor}
-    strokeWidth="2"
-  />
-</svg>
+  <polyline points={sparklinePath} fill="none" stroke={sparklineColor} strokeWidth="2" />
+</svg>;
 ```
 
 **Step 9: Update Dashboard.tsx**
 
 **Changes:**
+
 1. Remove mock data and setTimeout
 2. Add RTK Query hook: `useGetCoinsMarketsQuery`
 3. Implement infinite scroll logic
@@ -404,6 +415,7 @@ const sparklineColor = trend === 'up' ? '#4caf50' : trend === 'down' ? '#f44336'
 6. Implement 60-second polling
 
 **Example Usage:**
+
 ```tsx
 const [page, setPage] = useState(1);
 const { currency } = useCurrency();
@@ -416,7 +428,7 @@ const { data, isLoading, isFetching, error, refetch } = useGetCoinsMarketsQuery(
 const handleScroll = (e) => {
   const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
   if (bottom && !isFetching && data.length < 50) {
-    setPage(p => p + 1);
+    setPage((p) => p + 1);
   }
 };
 ```
@@ -424,6 +436,7 @@ const handleScroll = (e) => {
 **Step 10: Create ErrorBanner.tsx**
 
 **Features:**
+
 - Display error message
 - Show "Using cached data" indicator when fallback active
 - Retry button
@@ -433,6 +446,7 @@ const handleScroll = (e) => {
 **Step 11: Create InfiniteScrollLoader.tsx**
 
 **Features:**
+
 - Skeleton loader for scroll loads
 - "Loading more coins..." text
 - Appears at bottom of list during fetch
@@ -461,10 +475,12 @@ const handleScroll = (e) => {
 **Step 13: Handle Rate Limiting**
 
 **Detection:**
+
 - Check for 429 status code
 - Check for error message containing "rate limit"
 
 **Response:**
+
 - Pause polling for 60 seconds
 - Show ErrorBanner with appropriate message:
   - With API key: "Rate limit reached (30/min or 10k/month). Retrying in 60s..."
@@ -472,6 +488,7 @@ const handleScroll = (e) => {
 - Resume polling after cooldown
 
 **Example:**
+
 ```typescript
 const [pausePolling, setPausePolling] = useState(false);
 
@@ -482,10 +499,7 @@ useEffect(() => {
   }
 }, [error]);
 
-useGetCoinsMarketsQuery(
-  { currency, page, perPage },
-  { pollingInterval: pausePolling ? 0 : 60000 }
-);
+useGetCoinsMarketsQuery({ currency, page, perPage }, { pollingInterval: pausePolling ? 0 : 60000 });
 ```
 
 ### Phase 6: Testing & Optimization
@@ -493,6 +507,7 @@ useGetCoinsMarketsQuery(
 **Step 14: Test Currency Switching**
 
 Verify:
+
 - Separate cache per currency works
 - Instant switching (no loading delay)
 - Polling continues for active currency
@@ -501,6 +516,7 @@ Verify:
 **Step 15: Test Infinite Scroll**
 
 Verify:
+
 - Initial load shows 20 coins
 - Scroll triggers load of +10 coins
 - Stops at 50 coins
@@ -510,6 +526,7 @@ Verify:
 **Step 16: Test Error Scenarios**
 
 Scenarios:
+
 1. No internet connection
 2. Invalid API key
 3. Rate limit exceeded
@@ -517,6 +534,7 @@ Scenarios:
 5. Network timeout
 
 Expected:
+
 - ErrorBanner displays
 - Cached data still visible
 - Manual retry works
@@ -525,6 +543,7 @@ Expected:
 **Step 17: Test Sparkline Rendering**
 
 Verify:
+
 - All 168 points render smoothly
 - Colors match trend (green/red/gray)
 - Scales correctly to 120×40px
@@ -534,11 +553,13 @@ Verify:
 **Step 18: Monitor API Usage**
 
 Track:
+
 - Calls per minute (should stay under 30)
 - Daily calls (should stay well under 333/day)
 - Monthly calls (should stay under 10,000)
 
 Tools:
+
 - Console log API calls in dev mode
 - Use `/key` endpoint to check credits
 - Monitor RTK Query DevTools
@@ -546,6 +567,7 @@ Tools:
 **Step 19: Test Both With and Without API Key**
 
 Verify app works in both modes:
+
 1. **Without API key** (remove from .env or leave empty):
    - App loads and functions normally
    - Rate limits may be lower (5-15 calls/min)
@@ -558,6 +580,7 @@ Verify app works in both modes:
 **Step 20: Optimize Polling Behavior**
 
 Implement:
+
 - Skip polling when tab inactive (skipPollingIfUnfocused: true)
 - Pause polling on rate limit
 - Refetch on focus (refetchOnFocus: true)
@@ -568,15 +591,18 @@ Implement:
 ### Daily Usage (Normal Operation)
 
 **Dashboard Polling:**
+
 - 1 call per minute (60s polling)
 - 60 calls per hour
 - ~720 calls per 12-hour active day
 
 **Infinite Scroll:**
+
 - 3-4 additional calls per session (load 50 coins)
 - ~10-20 calls per day (assuming 5 sessions)
 
 **Currency Switching:**
+
 - 4 currencies × 1 call each = 4 calls per switch
 - ~20 calls per day (assuming 5 switches)
 
@@ -588,23 +614,27 @@ Implement:
 ### Optimization Required
 
 **Option 1: Reduce Polling Frequency**
+
 - Change to 120s polling (halves usage)
 - Daily: ~380 calls
 - Monthly: ~11,400 calls (still over)
 
 **Option 2: Reduce Polling Frequency + Skip Inactive**
+
 - 120s polling + skipPollingIfUnfocused
 - Assume 50% active time
 - Daily: ~190 calls
 - Monthly: ~5,700 calls ✅ (under limit)
 
 **Option 3: Manual Refresh Only**
+
 - No automatic polling
 - User clicks refresh button
 - Daily: ~50 calls
 - Monthly: ~1,500 calls ✅ (well under limit)
 
 **RECOMMENDATION: Option 2** (120s polling + skip inactive)
+
 - Balances freshness with rate limits
 - Still provides automatic updates
 - Pauses when user not actively viewing
@@ -725,16 +755,19 @@ Integrate CoinGecko API into the Coin Details page to display comprehensive cryp
 **Purpose:** Fetch comprehensive coin information for the data table and header.
 
 **Base URL:**
+
 ```
 https://api.coingecko.com/api/v3
 ```
 
 **Request Format:**
+
 ```
 GET /coins/{id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false&x_cg_demo_api_key={apiKey}
 ```
 
 **Query Parameters:**
+
 - `id` (path param): Coin identifier (e.g., "bitcoin")
 - `localization`: false (skip translations, reduce payload size)
 - `tickers`: false (skip ticker data, not needed)
@@ -745,11 +778,13 @@ GET /coins/{id}?localization=false&tickers=false&market_data=true&community_data
 - `x_cg_demo_api_key`: API key from environment
 
 **Why these parameters?**
+
 - Minimizes response size by excluding unused data
 - Focuses on market metrics needed for the details table
 - Reduces API response time
 
 **Response Fields Needed:**
+
 ```typescript
 interface CoinGeckoDetailsResponse {
   id: string;
@@ -775,6 +810,7 @@ interface CoinGeckoDetailsResponse {
 ```
 
 **API Call Optimization:**
+
 - **Per coin details view**: 1 API call
 - **Cache duration**: 5 minutes (300 seconds)
 - **No polling**: Data fetched once, cached until user navigates away or currency changes
@@ -786,11 +822,13 @@ interface CoinGeckoDetailsResponse {
 **Purpose:** Fetch historical price and market cap data for the interactive chart.
 
 **Request Format:**
+
 ```
 GET /coins/{id}/market_chart?vs_currency={currency}&days={days}&x_cg_demo_api_key={apiKey}
 ```
 
 **Query Parameters:**
+
 - `id` (path param): Coin identifier
 - `vs_currency`: Selected currency (zar/usd/eur/btc)
 - `days`: Time range (1, 3, 7, 30, 365)
@@ -799,17 +837,18 @@ GET /coins/{id}/market_chart?vs_currency={currency}&days={days}&x_cg_demo_api_ke
 
 **Time Range Mapping:**
 
-| UI Button | API `days` Parameter | Expected Data Points | Granularity |
-|-----------|----------------------|----------------------|-------------|
-| 24h | 1 | ~288 | 5-minute intervals |
-| 3d | 3 | ~36 | 2-hour intervals |
-| 7d | 7 | ~168 | Hourly intervals |
-| 1M | 30 | ~720 | Hourly intervals |
-| 1Y | 365 | ~365 | Daily intervals (00:00 UTC) |
+| UI Button | API `days` Parameter | Expected Data Points | Granularity                 |
+| --------- | -------------------- | -------------------- | --------------------------- |
+| 24h       | 1                    | ~288                 | 5-minute intervals          |
+| 3d        | 3                    | ~36                  | 2-hour intervals            |
+| 7d        | 7                    | ~168                 | Hourly intervals            |
+| 1M        | 30                   | ~720                 | Hourly intervals            |
+| 1Y        | 365                  | ~365                 | Daily intervals (00:00 UTC) |
 
 **Note:** Removed "MAX" button from UI. Free tier limits historical data to 365 days maximum.
 
 **Response Format:**
+
 ```json
 {
   "prices": [[timestamp_ms, price], [timestamp_ms, price], ...],
@@ -819,11 +858,13 @@ GET /coins/{id}/market_chart?vs_currency={currency}&days={days}&x_cg_demo_api_ke
 ```
 
 **Metric Type Handling:**
+
 - **Price chart**: Use `prices` array
 - **Market Cap chart**: Use `market_caps` array
 - Both arrays always returned, client selects which to display
 
 **API Call Optimization:**
+
 - **Per time range change**: 1 API call
 - **Per metric toggle**: 0 API calls (use cached data, switch between `prices` and `market_caps`)
 - **Cache duration**: Cache indefinitely (historical data doesn't change)
@@ -840,20 +881,20 @@ interface ICoinDetails {
   id: string;
   name: string;
   symbol: string;
-  currentPrice: number;              // In selected currency
-  marketCap: number;                 // In selected currency
-  fullyDilutedValuation: number;     // In selected currency
-  volume24h: number;                 // In selected currency
-  circulatingSupply: number;         // Coin units (not currency-dependent)
-  totalSupply: number;               // Coin units
-  maxSupply: number | null;          // Coin units (null if unlimited)
-  marketRank: number;                // Rank by market cap
-  priceChange24h: number;            // Percentage
-  priceChange7d: number;             // Percentage
-  priceChange30d: number;            // Percentage
-  priceChange1y: number;             // Percentage
-  allTimeHigh: number;               // In selected currency
-  allTimeLow: number;                // In selected currency
+  currentPrice: number; // In selected currency
+  marketCap: number; // In selected currency
+  fullyDilutedValuation: number; // In selected currency
+  volume24h: number; // In selected currency
+  circulatingSupply: number; // Coin units (not currency-dependent)
+  totalSupply: number; // Coin units
+  maxSupply: number | null; // Coin units (null if unlimited)
+  marketRank: number; // Rank by market cap
+  priceChange24h: number; // Percentage
+  priceChange7d: number; // Percentage
+  priceChange30d: number; // Percentage
+  priceChange1y: number; // Percentage
+  allTimeHigh: number; // In selected currency
+  allTimeLow: number; // In selected currency
 }
 ```
 
@@ -861,19 +902,17 @@ interface ICoinDetails {
 
 ```typescript
 interface ChartDataPoint {
-  timestamp: number;  // Unix timestamp in milliseconds
-  value: number;      // Price or market cap in selected currency
+  timestamp: number; // Unix timestamp in milliseconds
+  value: number; // Price or market cap in selected currency
 }
 ```
 
 ### Data Transformation Functions
 
 **Transform API Response → ICoinDetails:**
+
 ```typescript
-function transformCoinDetails(
-  apiResponse: CoinGeckoDetailsResponse,
-  currency: string
-): ICoinDetails {
+function transformCoinDetails(apiResponse: CoinGeckoDetailsResponse, currency: string): ICoinDetails {
   return {
     id: apiResponse.id,
     name: apiResponse.name,
@@ -897,6 +936,7 @@ function transformCoinDetails(
 ```
 
 **Transform Chart Data → ChartDataPoint[]:**
+
 ```typescript
 function transformChartData(
   apiResponse: { prices: [number, number][]; market_caps: [number, number][] },
@@ -931,6 +971,7 @@ src/
 ### No New Files Required
 
 All utilities and components already exist. Just need to:
+
 - Update apiSlice.ts with new endpoints
 - Update CoinDetails.tsx to use API instead of mocks
 - Delete mock data files after API integration works
@@ -1001,9 +1042,9 @@ getMarketChart: builder.query({
 
 ```typescript
 export const {
-  useGetCoinsMarketsQuery,         // Dashboard (existing)
-  useGetCoinDetailsQuery,           // NEW
-  useGetMarketChartQuery,           // NEW
+  useGetCoinsMarketsQuery, // Dashboard (existing)
+  useGetCoinDetailsQuery, // NEW
+  useGetMarketChartQuery, // NEW
 } = coinGeckoApi;
 ```
 
@@ -1027,6 +1068,7 @@ export const coinGeckoApi = createApi({
 **Step 5: Replace Mock Data with API Calls**
 
 **Current implementation (lines 42-60 in CoinDetails.tsx):**
+
 ```typescript
 // OLD - Remove this
 useEffect(() => {
@@ -1048,6 +1090,7 @@ useEffect(() => {
 ```
 
 **NEW implementation:**
+
 ```typescript
 const { currency } = useCurrency();
 
@@ -1055,7 +1098,7 @@ const { currency } = useCurrency();
 const {
   data: coinData,
   isLoading: detailsLoading,
-  error: detailsError
+  error: detailsError,
 } = useGetCoinDetailsQuery(
   { coinId: id || 'bitcoin', currency },
   { skip: !id } // Skip query if no id
@@ -1065,7 +1108,7 @@ const {
 const {
   data: rawChartData,
   isLoading: chartLoading,
-  error: chartError
+  error: chartError,
 } = useGetMarketChartQuery(
   { coinId: id || 'bitcoin', currency, days: timeRange === '1Y' ? '365' : timeRange },
   { skip: !id }
@@ -1144,6 +1187,7 @@ In CoinDetails.tsx, line 273:
 **Step 9: Test Currency Switching**
 
 Verify that changing currency:
+
 1. Triggers refetch of coin details (separate cache key)
 2. Triggers refetch of chart data (separate cache key)
 3. Both update to show values in new currency
@@ -1152,6 +1196,7 @@ Verify that changing currency:
 **Step 10: Optimize Metric Toggle (Price vs Market Cap)**
 
 Current implementation already optimized:
+
 - Switching metric doesn't refetch (both price and market_cap in response)
 - Uses `useMemo` to transform cached data
 - Zero API calls when toggling
@@ -1172,6 +1217,7 @@ rm src/utils/mockChartData.ts
 **Step 12: Remove Mock Data Imports**
 
 Remove from CoinDetails.tsx:
+
 ```typescript
 // DELETE THESE IMPORTS
 import { getMockCoinDetails, type ICoinDetails } from '../utils/mockCoinDetails';
@@ -1179,6 +1225,7 @@ import { generateMockChartData, getChartTrend, type TimeRange, type ChartDataPoi
 ```
 
 Add API imports:
+
 ```typescript
 // ADD THESE IMPORTS
 import { useGetCoinDetailsQuery, useGetMarketChartQuery } from '../store/apiSlice';
@@ -1191,30 +1238,34 @@ import { useGetCoinDetailsQuery, useGetMarketChartQuery } from '../store/apiSlic
 ### Per Details Page View
 
 **Initial Load:**
+
 - 1 call to `/coins/{id}` (coin details)
 - 1 call to `/coins/{id}/market_chart` (chart data for default 7d range)
 - **Total**: 2 API calls
 
 **User Interactions:**
 
-| Action | API Calls | Notes |
-|--------|-----------|-------|
-| Change time range | 1 | New chart data (if not cached) |
-| Toggle Price/Market Cap | 0 | Uses cached data |
-| Change currency | 2 | Refetch both details + chart |
-| Navigate back/forward | 0 | Uses cache (5min for details, 1hr for chart) |
+| Action                  | API Calls | Notes                                        |
+| ----------------------- | --------- | -------------------------------------------- |
+| Change time range       | 1         | New chart data (if not cached)               |
+| Toggle Price/Market Cap | 0         | Uses cached data                             |
+| Change currency         | 2         | Refetch both details + chart                 |
+| Navigate back/forward   | 0         | Uses cache (5min for details, 1hr for chart) |
 
 **Typical Session (5 minutes on details page):**
+
 - Initial load: 2 calls
 - Change time range 3 times: 3 calls (assume not cached)
 - Toggle metric 2 times: 0 calls
 - **Session Total**: ~5 calls per coin viewed
 
 **Daily Usage (Assuming 10 coin detail views per day):**
+
 - 10 coins × 5 calls = **50 calls/day**
 - **Monthly**: ~1,500 calls/month
 
 **Combined with Dashboard:**
+
 - Dashboard: ~5,700 calls/month
 - Details Page: ~1,500 calls/month
 - **Total**: ~7,200 calls/month ✅ (under 10,000 limit)

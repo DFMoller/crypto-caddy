@@ -48,6 +48,6 @@ const ErrorBanner: FunctionComponent<ErrorBannerProps> = (props) => {
       {showCachedDataIndicator && <div>Showing cached data</div>}
     </Alert>
   );
-}
+};
 
 export default ErrorBanner;
