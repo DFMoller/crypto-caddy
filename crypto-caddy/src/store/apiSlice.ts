@@ -91,7 +91,7 @@ const baseQueryWithRetry = retry(baseQuery, { maxRetries: 3 });
 export const coinGeckoApi = createApi({
   reducerPath: 'coinGeckoApi',
   baseQuery: baseQueryWithRetry,
-  tagTypes: ['CoinMarkets'],
+  tagTypes: ['CoinMarkets', 'CoinDetails', 'MarketChart'],
   endpoints: (builder) => ({
     getCoinsMarkets: builder.query<Coin[], { currency?: string; page?: number; perPage?: number }>({
       query: ({ currency = 'zar', page = 1, perPage = 20 }) => ({
@@ -121,7 +121,143 @@ export const coinGeckoApi = createApi({
         return response.map(transformCoinData);
       },
     }),
+    getCoinDetails: builder.query<ICoinDetails, { coinId: string; currency: string }>({
+      query: ({ coinId }) => ({
+        url: `/coins/${coinId}`,
+        params: {
+          localization: false,
+          tickers: false,
+          market_data: true,
+          community_data: false,
+          developer_data: false,
+          sparkline: false,
+        },
+      }),
+      keepUnusedDataFor: 300,
+      providesTags: (_result, _error, { coinId, currency }) => [{ type: 'CoinDetails', id: `${coinId}-${currency}` }],
+      transformResponse: (response: CoinGeckoDetailsResponse, _meta, arg) => {
+        return transformCoinDetails(response, arg.currency);
+      },
+    }),
+    getMarketChart: builder.query<ChartDataPoint[], { coinId: string; currency: string; days: string }>({
+      query: ({ coinId, currency = 'zar', days = '7' }) => ({
+        url: `/coins/${coinId}/market_chart`,
+        params: {
+          vs_currency: currency,
+          days,
+        },
+      }),
+      keepUnusedDataFor: 3600,
+      providesTags: (_result, _error, { coinId, currency, days }) => [
+        { type: 'MarketChart', id: `${coinId}-${currency}-${days}` },
+      ],
+      transformResponse: (response: CoinGeckoMarketChartResponse) => {
+        return transformMarketChart(response);
+      },
+    }),
   }),
 });
 
-export const { useGetCoinsMarketsQuery } = coinGeckoApi;
+/**
+ * CoinGecko API response for coin details endpoint.
+ */
+interface CoinGeckoDetailsResponse {
+  id: string;
+  symbol: string;
+  name: string;
+  market_data: {
+    current_price: { [currency: string]: number };
+    market_cap: { [currency: string]: number };
+    fully_diluted_valuation: { [currency: string]: number | null };
+    total_volume: { [currency: string]: number };
+    circulating_supply: number;
+    total_supply: number | null;
+    max_supply: number | null;
+    market_cap_rank: number;
+    price_change_percentage_24h: number;
+    price_change_percentage_7d: number;
+    price_change_percentage_30d: number;
+    price_change_percentage_1y: number;
+    ath: { [currency: string]: number };
+    atl: { [currency: string]: number };
+  };
+}
+
+/**
+ * Application's coin details interface.
+ */
+export interface ICoinDetails {
+  id: string;
+  name: string;
+  symbol: string;
+  currentPrice: number;
+  marketCap: number;
+  fullyDilutedValuation: number;
+  volume24h: number;
+  circulatingSupply: number;
+  totalSupply: number;
+  maxSupply: number | null;
+  marketRank: number;
+  priceChange24h: number;
+  priceChange7d: number;
+  priceChange30d: number;
+  priceChange1y: number;
+  allTimeHigh: number;
+  allTimeLow: number;
+}
+
+/**
+ * Transforms CoinGecko API details response to the app's ICoinDetails format.
+ */
+function transformCoinDetails(apiData: CoinGeckoDetailsResponse, currency: string): ICoinDetails {
+  return {
+    id: apiData.id,
+    name: apiData.name,
+    symbol: apiData.symbol,
+    currentPrice: apiData.market_data.current_price[currency] || 0,
+    marketCap: apiData.market_data.market_cap[currency] || 0,
+    fullyDilutedValuation: apiData.market_data.fully_diluted_valuation?.[currency] || 0,
+    volume24h: apiData.market_data.total_volume[currency] || 0,
+    circulatingSupply: apiData.market_data.circulating_supply,
+    totalSupply: apiData.market_data.total_supply || 0,
+    maxSupply: apiData.market_data.max_supply,
+    marketRank: apiData.market_data.market_cap_rank,
+    priceChange24h: apiData.market_data.price_change_percentage_24h,
+    priceChange7d: apiData.market_data.price_change_percentage_7d,
+    priceChange30d: apiData.market_data.price_change_percentage_30d,
+    priceChange1y: apiData.market_data.price_change_percentage_1y,
+    allTimeHigh: apiData.market_data.ath[currency] || 0,
+    allTimeLow: apiData.market_data.atl[currency] || 0,
+  };
+}
+
+/**
+ * CoinGecko API response for market chart endpoint.
+ */
+interface CoinGeckoMarketChartResponse {
+  prices: [number, number][];
+  market_caps: [number, number][];
+  total_volumes: [number, number][];
+}
+
+/**
+ * Application's chart data point interface.
+ */
+export interface ChartDataPoint {
+  timestamp: number;
+  price: number;
+  marketCap: number;
+}
+
+/**
+ * Transforms CoinGecko API market chart response to app's chart format.
+ */
+function transformMarketChart(apiData: CoinGeckoMarketChartResponse): ChartDataPoint[] {
+  return apiData.prices.map((pricePoint, index) => ({
+    timestamp: pricePoint[0],
+    price: pricePoint[1],
+    marketCap: apiData.market_caps[index]?.[1] || 0,
+  }));
+}
+
+export const { useGetCoinsMarketsQuery, useGetCoinDetailsQuery, useGetMarketChartQuery } = coinGeckoApi;

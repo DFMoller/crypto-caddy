@@ -1,4 +1,4 @@
-import { useState, useEffect, type FunctionComponent } from 'react';
+import { useState, useMemo, type FunctionComponent } from 'react';
 import { Box, Typography, Button, Container, Card, CardContent, ButtonGroup, Avatar } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -6,12 +6,38 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Header from '../components/Header';
 import Breadcrumbs from '../components/Breadcrumbs';
 import DetailsSkeleton from '../components/DetailsSkeleton';
+import ErrorBanner from '../components/ErrorBanner';
 import { useCurrency } from '../hooks/useCurrency';
-import { getMockCoinDetails, type ICoinDetails } from '../utils/mockCoinDetails';
-import { generateMockChartData, getChartTrend, type TimeRange, type ChartDataPoint } from '../utils/mockChartData';
-import { convertCurrency } from '../utils/convertCurrency';
+import { useGetCoinDetailsQuery, useGetMarketChartQuery } from '../store/apiSlice';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatPercentage, formatSupply } from '../utils/formatNumber';
+
+/**
+ * Time range type for chart data.
+ */
+type TimeRange = '24h' | '3d' | '7d' | '1M' | '1Y';
+
+/**
+ * Maps UI time range to API days parameter.
+ */
+function getApiDays(timeRange: TimeRange): string {
+  const mapping: Record<TimeRange, string> = {
+    '24h': '1',
+    '3d': '3',
+    '7d': '7',
+    '1M': '30',
+    '1Y': '365',
+  };
+  return mapping[timeRange];
+}
+
+/**
+ * Chart data point with value property for display.
+ */
+interface DisplayChartDataPoint {
+  timestamp: number;
+  value: number;
+}
 
 /**
  * CoinDetails page component.
@@ -26,9 +52,6 @@ const CoinDetails: FunctionComponent = () => {
   const navigate = useNavigate();
   const { currency } = useCurrency();
 
-  const [loading, setLoading] = useState(true);
-  const [coinData, setCoinData] = useState<ICoinDetails | null>(null);
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
   const [metricType, setMetricType] = useState<'price' | 'marketCap'>('price');
 
@@ -39,28 +62,61 @@ const CoinDetails: FunctionComponent = () => {
     navigate('/');
   };
 
-  useEffect(() => {
-    // Simulate API call with loading delay.
-    setLoading(true);
+  // Fetch coin details from API.
+  const {
+    data: coinData,
+    isLoading: detailsLoading,
+    error: detailsError,
+  } = useGetCoinDetailsQuery(
+    { coinId: id || 'bitcoin', currency: currency.toLowerCase() },
+    { skip: !id }
+  );
 
-    setTimeout(() => {
-      const data = getMockCoinDetails(id || 'bitcoin');
-      setCoinData(data);
-      setLoading(false);
-    }, 1500);
-  }, [id]);
+  // Fetch chart data from API.
+  const {
+    data: rawChartData,
+    isLoading: chartLoading,
+    error: chartError,
+  } = useGetMarketChartQuery(
+    { coinId: id || 'bitcoin', currency: currency.toLowerCase(), days: getApiDays(timeRange) },
+    { skip: !id }
+  );
 
-  useEffect(() => {
-    // Generate chart data when coin data, time range, or metric changes.
-    if (coinData) {
-      const currentValue = metricType === 'price' ? coinData.currentPrice : coinData.marketCap;
-      const data = generateMockChartData(coinData.id, timeRange, metricType, currentValue);
-      setChartData(data);
-    }
-  }, [coinData, timeRange, metricType]);
+  // Transform chart data based on selected metric (client-side, no API calls).
+  const chartData: DisplayChartDataPoint[] = useMemo(() => {
+    if (!rawChartData) return [];
+    return rawChartData.map((point) => ({
+      timestamp: point.timestamp,
+      value: metricType === 'price' ? point.price : point.marketCap,
+    }));
+  }, [rawChartData, metricType]);
+
+  // Determine chart color based on trend.
+  const isUpTrend = chartData.length > 1 && chartData[chartData.length - 1].value >= chartData[0].value;
+  const chartColor = isUpTrend ? '#4caf50' : '#f44336'; // Green or red.
+
+  // Show error banner if either API call fails.
+  if (detailsError || chartError) {
+    return (
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+        <Header />
+        <Breadcrumbs />
+        <Container maxWidth="lg" sx={{ paddingY: 4 }}>
+          <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
+            Back to Dashboard
+          </Button>
+          <ErrorBanner
+            error={detailsError || chartError}
+            onRetry={() => window.location.reload()}
+            showCachedDataIndicator={false}
+          />
+        </Container>
+      </Box>
+    );
+  }
 
   // Show loading skeleton while data is loading.
-  if (loading || !coinData) {
+  if (detailsLoading || chartLoading || !coinData) {
     return (
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header />
@@ -75,18 +131,6 @@ const CoinDetails: FunctionComponent = () => {
     );
   }
 
-  // Convert values to selected currency.
-  const displayPrice = convertCurrency(coinData.currentPrice, currency);
-  const displayMarketCap = convertCurrency(coinData.marketCap, currency);
-  const displayFDV = convertCurrency(coinData.fullyDilutedValuation, currency);
-  const displayVolume = convertCurrency(coinData.volume24h, currency);
-  const displayATH = convertCurrency(coinData.allTimeHigh, currency);
-  const displayATL = convertCurrency(coinData.allTimeLow, currency);
-
-  // Determine chart color based on trend.
-  const isUpTrend = getChartTrend(chartData);
-  const chartColor = isUpTrend ? '#4caf50' : '#f44336'; // Green or red.
-
   /**
    * Custom tooltip component for the Recharts chart.
    *
@@ -98,11 +142,10 @@ const CoinDetails: FunctionComponent = () => {
    * @param payload - Array containing the data point payload
    * @returns Tooltip component or null if not active
    */
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: ChartDataPoint }[] }) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: DisplayChartDataPoint }[] }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const date = new Date(data.timestamp);
-      const displayValue = convertCurrency(data.value, currency);
 
       return (
         <Box
@@ -117,7 +160,7 @@ const CoinDetails: FunctionComponent = () => {
             {date.toLocaleDateString()} {date.toLocaleTimeString()}
           </Typography>
           <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
-            {formatCurrency(displayValue, currency)}
+            {formatCurrency(data.value, currency)}
           </Typography>
         </Box>
       );
@@ -159,7 +202,7 @@ const CoinDetails: FunctionComponent = () => {
           </Box>
           <Box>
             <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600, textAlign: 'right' }}>
-              {formatCurrency(displayPrice, currency)}
+              {formatCurrency(coinData.currentPrice, currency)}
             </Typography>
             <Typography
               variant="body2"
@@ -193,9 +236,9 @@ const CoinDetails: FunctionComponent = () => {
               }}
             >
               <CardContent>
-                <DataRow label="Market Cap" value={formatCurrency(displayMarketCap, currency)} />
-                <DataRow label="Fully Diluted Valuation" value={formatCurrency(displayFDV, currency)} />
-                <DataRow label="24 Hour Trading Vol" value={formatCurrency(displayVolume, currency)} />
+                <DataRow label="Market Cap" value={formatCurrency(coinData.marketCap, currency)} />
+                <DataRow label="Fully Diluted Valuation" value={formatCurrency(coinData.fullyDilutedValuation, currency)} />
+                <DataRow label="24 Hour Trading Vol" value={formatCurrency(coinData.volume24h, currency)} />
                 <DataRow label="Circulating Supply" value={formatSupply(coinData.circulatingSupply)} />
                 <DataRow label="Total Supply" value={formatSupply(coinData.totalSupply)} />
                 <DataRow label="Max Supply" value={formatSupply(coinData.maxSupply)} />
@@ -220,8 +263,8 @@ const CoinDetails: FunctionComponent = () => {
                   value={formatPercentage(coinData.priceChange1y)}
                   valueColor={coinData.priceChange1y >= 0 ? '#4caf50' : '#f44336'}
                 />
-                <DataRow label="All-Time High" value={formatCurrency(displayATH, currency)} />
-                <DataRow label="All-Time Low" value={formatCurrency(displayATL, currency)} />
+                <DataRow label="All-Time High" value={formatCurrency(coinData.allTimeHigh, currency)} />
+                <DataRow label="All-Time Low" value={formatCurrency(coinData.allTimeLow, currency)} />
               </CardContent>
             </Card>
           </Box>
@@ -270,7 +313,7 @@ const CoinDetails: FunctionComponent = () => {
 
                   {/* Time range selector buttons. */}
                   <ButtonGroup variant="outlined" size="small">
-                    {(['24h', '3d', '7d', '1M', '1Y', 'MAX'] as TimeRange[]).map((range) => (
+                    {(['24h', '3d', '7d', '1M', '1Y'] as TimeRange[]).map((range) => (
                       <Button
                         key={range}
                         onClick={() => setTimeRange(range)}
@@ -306,20 +349,19 @@ const CoinDetails: FunctionComponent = () => {
                     <YAxis
                       stroke="#B0B0B0"
                       tickFormatter={(value) => {
-                        const converted = convertCurrency(value, currency);
-                        if (converted >= 1_000_000_000_000) {
-                          return `${(converted / 1_000_000_000_000).toFixed(1)}T`;
+                        if (value >= 1_000_000_000_000) {
+                          return `${(value / 1_000_000_000_000).toFixed(1)}T`;
                         }
-                        if (converted >= 1_000_000_000) {
-                          return `${(converted / 1_000_000_000).toFixed(1)}B`;
+                        if (value >= 1_000_000_000) {
+                          return `${(value / 1_000_000_000).toFixed(1)}B`;
                         }
-                        if (converted >= 1_000_000) {
-                          return `${(converted / 1_000_000).toFixed(1)}M`;
+                        if (value >= 1_000_000) {
+                          return `${(value / 1_000_000).toFixed(1)}M`;
                         }
-                        if (converted >= 1_000) {
-                          return `${(converted / 1_000).toFixed(1)}K`;
+                        if (value >= 1_000) {
+                          return `${(value / 1_000).toFixed(1)}K`;
                         }
-                        return converted.toFixed(0);
+                        return value.toFixed(0);
                       }}
                     />
                     <Tooltip content={<CustomTooltip />} />
