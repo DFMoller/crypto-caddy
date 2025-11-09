@@ -6,8 +6,8 @@ Integrate CoinGecko API into the Dashboard to display live cryptocurrency data w
 
 ## ✅ Key Decisions (Based on Collaborative Planning)
 
-- **API Tier**: CoinGecko Demo API (free, requires API key)
-- **Rate Limit**: 30 calls/minute, 10,000 calls/month
+- **API Tier**: CoinGecko API (free, optional API key)
+- **Rate Limit**: With API key: 30 calls/minute, 10,000 calls/month | Without API key: 5-15 calls/minute, unlimited
 - **Polling Interval**: 60 seconds (balanced approach)
 - **Coin Display**: 20-50 coins with infinite scroll
 - **Initial Load**: 20 coins (1 API call)
@@ -17,7 +17,8 @@ Integrate CoinGecko API into the Dashboard to display live cryptocurrency data w
 - **Price Changes**: Show both 24h + 7d percentages
 - **Currency Strategy**: Separate cache per currency (instant switching)
 - **Error Handling**: Show error banner + fallback to cached data + retry with exponential backoff
-- **API Key Storage**: `.env` file (local development)
+- **API Key Storage**: Optional `.env` file (COINGECKO_API_KEY)
+- **API Key Strategy**: Use API key if provided (30 calls/min), fallback to no-auth (5-15 calls/min)
 
 ## 🎯 API Endpoint Strategy
 
@@ -36,8 +37,10 @@ https://api.coingecko.com/api/v3
 
 **Request Format:**
 ```
-GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}&page={page}&sparkline=true&price_change_percentage=24h,7d&x_cg_demo_api_key={apiKey}
+GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}&page={page}&sparkline=true&price_change_percentage=24h,7d
 ```
+
+**Optional:** Add `&x_cg_demo_api_key={apiKey}` query parameter or `x-cg-demo-api-key` header if API key is provided.
 
 **Query Parameters:**
 - `vs_currency`: "zar" | "usd" | "eur" | "btc" (selected currency)
@@ -46,7 +49,7 @@ GET /coins/markets?vs_currency={currency}&order=market_cap_desc&per_page={limit}
 - `page`: 1, 2, 3... (pagination for infinite scroll)
 - `sparkline`: true (include 7-day hourly price data)
 - `price_change_percentage`: "24h,7d" (get both timeframes)
-- `x_cg_demo_api_key`: API key from environment variable
+- `x_cg_demo_api_key`: (Optional) API key from environment variable for better rate limits
 
 **API Call Optimization:**
 - **Initial load (20 coins)**: 1 API call
@@ -158,18 +161,23 @@ src/
     └── coin.types.ts                # (Optional) Centralized types
 ```
 
-### Environment Configuration
+### Environment Configuration (Optional)
 
-**Create `.env` file:**
+**The app works without an API key**, but providing one improves rate limits from 5-15 calls/min to 30 calls/min guaranteed.
+
+**Create `.env` file (optional):**
 ```env
-VITE_COINGECKO_API_KEY=your_demo_api_key_here
-VITE_COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
+# Optional: Improves rate limits (30 calls/min vs 5-15 calls/min)
+COINGECKO_API_KEY=your_demo_api_key_here
+COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 ```
 
 **Create `.env.example` file:**
 ```env
-VITE_COINGECKO_API_KEY=get_your_key_from_coingecko.com
-VITE_COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
+# Optional: Get your free demo key from https://www.coingecko.com/en/api
+# Improves rate limits from 5-15 calls/min to 30 calls/min (10,000/month cap)
+COINGECKO_API_KEY=
+COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 ```
 
 **Add to `.gitignore`:**
@@ -182,31 +190,29 @@ VITE_COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
 
 ### Phase 1: Environment & API Setup
 
-**Step 1: Get CoinGecko API Key**
-1. Visit https://www.coingecko.com/en/api
-2. Sign up for free account
-3. Generate Demo API key
-4. Copy key for `.env` file
+**Step 1: Configure Environment Variables (Optional)**
 
-**Step 2: Configure Environment Variables**
-1. Create `.env` file in project root
-2. Add `VITE_COINGECKO_API_KEY=your_key`
-3. Create `.env.example` template for team
-4. Verify `.env` is in `.gitignore`
-5. Test access with `import.meta.env.VITE_COINGECKO_API_KEY`
+**Note:** This step is optional. The app works without an API key but with lower rate limits (5-15 calls/min vs 30 calls/min).
 
-**Step 3: Update Type Definitions**
+1. (Optional) Visit https://www.coingecko.com/en/api to get free Demo API key
+2. Create `.env` file in project root
+3. Add `COINGECKO_API_KEY=your_key` (or leave empty)
+4. Create `.env.example` template for team
+5. Verify `.env` is in `.gitignore`
+6. Test that app works both with and without API key
+
+**Step 2: Update Type Definitions**
 1. Update Coin interface to include new fields
 2. Create CoinGeckoMarketData interface
 3. Create transformer function (API → App format)
 
 ### Phase 2: RTK Query Configuration
 
-**Step 4: Configure apiSlice.ts**
+**Step 3: Configure apiSlice.ts**
 
 Implement RTK Query with:
 - Base query with CoinGecko URL
-- API key injection in headers
+- Conditional API key injection (only if provided)
 - Error transformation
 - Retry logic with exponential backoff
 
@@ -214,10 +220,16 @@ Implement RTK Query with:
 ```typescript
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 
+// Get API key from environment (may be undefined)
+const API_KEY = import.meta.env.COINGECKO_API_KEY;
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_COINGECKO_BASE_URL,
+  baseUrl: import.meta.env.COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3',
   prepareHeaders: (headers) => {
-    headers.set('x-cg-demo-api-key', import.meta.env.VITE_COINGECKO_API_KEY);
+    // Only add API key header if provided
+    if (API_KEY) {
+      headers.set('x-cg-demo-api-key', API_KEY);
+    }
     return headers;
   },
 });
@@ -234,7 +246,12 @@ export const coinGeckoApi = createApi({
 });
 ```
 
-**Step 5: Create getCoinsMarkets Endpoint**
+**Key Changes:**
+- Check if `API_KEY` exists before adding header
+- App gracefully handles missing API key
+- Works with lower rate limits (5-15 calls/min) when no key provided
+
+**Step 4: Create getCoinsMarkets Endpoint**
 
 Features:
 - Accepts currency, page, perPage parameters
@@ -278,12 +295,12 @@ getCoinsMarkets: builder.query({
 }),
 ```
 
-**Step 6: Export Hooks**
+**Step 5: Export Hooks**
 ```typescript
 export const { useGetCoinsMarketsQuery } = coinGeckoApi;
 ```
 
-**Step 7: Add API Reducer to Store**
+**Step 6: Add API Reducer to Store**
 
 Update `store.ts`:
 ```typescript
@@ -300,7 +317,7 @@ export const store = configureStore({
 
 ### Phase 3: Sparkline Utilities
 
-**Step 8: Create generateSparklinePath.ts**
+**Step 7: Create generateSparklinePath.ts**
 
 Purpose: Convert 168 price points to SVG polyline path
 
@@ -352,7 +369,7 @@ export function getSparklineTrend(prices: number[]): 'up' | 'down' | 'flat' {
 
 ### Phase 4: Component Updates
 
-**Step 9: Update CoinCard.tsx**
+**Step 8: Update CoinCard.tsx**
 
 **Changes:**
 1. Add `priceChange24h`, `priceChangePercentage24h`, `priceChangePercentage7d`, `sparklineData` to props
@@ -376,7 +393,7 @@ const sparklineColor = trend === 'up' ? '#4caf50' : trend === 'down' ? '#f44336'
 </svg>
 ```
 
-**Step 10: Update Dashboard.tsx**
+**Step 9: Update Dashboard.tsx**
 
 **Changes:**
 1. Remove mock data and setTimeout
@@ -404,7 +421,7 @@ const handleScroll = (e) => {
 };
 ```
 
-**Step 11: Create ErrorBanner.tsx**
+**Step 10: Create ErrorBanner.tsx**
 
 **Features:**
 - Display error message
@@ -413,7 +430,7 @@ const handleScroll = (e) => {
 - Dismiss button
 - Auto-dismiss after 10 seconds
 
-**Step 12: Create InfiniteScrollLoader.tsx**
+**Step 11: Create InfiniteScrollLoader.tsx**
 
 **Features:**
 - Skeleton loader for scroll loads
@@ -422,7 +439,7 @@ const handleScroll = (e) => {
 
 ### Phase 5: Error Handling & Resilience
 
-**Step 13: Implement Error Handling Strategy**
+**Step 12: Implement Error Handling Strategy**
 
 **Three-Layer Approach:**
 
@@ -441,7 +458,7 @@ const handleScroll = (e) => {
    - Provide manual retry button
    - Pause polling on repeated failures
 
-**Step 14: Handle Rate Limiting**
+**Step 13: Handle Rate Limiting**
 
 **Detection:**
 - Check for 429 status code
@@ -449,7 +466,9 @@ const handleScroll = (e) => {
 
 **Response:**
 - Pause polling for 60 seconds
-- Show ErrorBanner: "Rate limit reached. Retrying in 60s..."
+- Show ErrorBanner with appropriate message:
+  - With API key: "Rate limit reached (30/min or 10k/month). Retrying in 60s..."
+  - Without API key: "Rate limit reached (5-15/min). Consider adding an API key for better limits. Retrying in 60s..."
 - Resume polling after cooldown
 
 **Example:**
@@ -471,7 +490,7 @@ useGetCoinsMarketsQuery(
 
 ### Phase 6: Testing & Optimization
 
-**Step 15: Test Currency Switching**
+**Step 14: Test Currency Switching**
 
 Verify:
 - Separate cache per currency works
@@ -479,7 +498,7 @@ Verify:
 - Polling continues for active currency
 - URL updates correctly
 
-**Step 16: Test Infinite Scroll**
+**Step 15: Test Infinite Scroll**
 
 Verify:
 - Initial load shows 20 coins
@@ -488,7 +507,7 @@ Verify:
 - Loading indicator appears during fetch
 - No duplicate coins
 
-**Step 17: Test Error Scenarios**
+**Step 16: Test Error Scenarios**
 
 Scenarios:
 1. No internet connection
@@ -503,7 +522,7 @@ Expected:
 - Manual retry works
 - Polling pauses/resumes appropriately
 
-**Step 18: Test Sparkline Rendering**
+**Step 17: Test Sparkline Rendering**
 
 Verify:
 - All 168 points render smoothly
@@ -512,7 +531,7 @@ Verify:
 - Handles flat lines (no range)
 - Handles missing data gracefully
 
-**Step 19: Monitor API Usage**
+**Step 18: Monitor API Usage**
 
 Track:
 - Calls per minute (should stay under 30)
@@ -523,6 +542,18 @@ Tools:
 - Console log API calls in dev mode
 - Use `/key` endpoint to check credits
 - Monitor RTK Query DevTools
+
+**Step 19: Test Both With and Without API Key**
+
+Verify app works in both modes:
+1. **Without API key** (remove from .env or leave empty):
+   - App loads and functions normally
+   - Rate limits may be lower (5-15 calls/min)
+   - No errors in console
+2. **With API key** (add to .env):
+   - App loads and functions normally
+   - Better rate limits (30 calls/min guaranteed)
+   - No errors in console
 
 **Step 20: Optimize Polling Behavior**
 
@@ -674,7 +705,7 @@ Integrate CoinGecko API into the Coin Details page to display comprehensive cryp
 
 ## ✅ Key Decisions (Based on Collaborative Planning)
 
-- **API Tier**: CoinGecko Demo API (same as dashboard)
+- **API Tier**: CoinGecko API (free, optional API key - same as dashboard)
 - **API Endpoints**: Two separate RTK Query endpoints
   - `/coins/{id}` for coin details
   - `/coins/{id}/market_chart` for historical chart data
@@ -685,7 +716,7 @@ Integrate CoinGecko API into the Coin Details page to display comprehensive cryp
 - **Cache Strategy**: Separate cache keys for details and chart data
 - **Currency Handling**: Both endpoints cache separately per currency
 - **No Prefetching**: Only fetch data when explicitly requested by user
-- **API Key**: Same as dashboard (`CG-62CmESrxys6cjLtFJzV3nYg7`)
+- **API Key**: Optional (same strategy as dashboard)
 
 ## 🎯 API Endpoint Strategy
 
