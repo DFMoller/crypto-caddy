@@ -1,41 +1,61 @@
 import { Card, CardContent, Box, Typography, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { generateSparklinePath, getSparklineTrend } from '../utils/generateSparklinePath';
 import { useCurrency } from '../hooks/useCurrency';
-import { CURRENCY_SYMBOLS, CONVERSION_RATES } from '../constants/currencyConstants';
+import { CURRENCY_SYMBOLS } from '../constants/currencyConstants';
+import type { FunctionComponent } from 'react';
 
 interface CoinCardProps {
   id: string;
   name: string;
   symbol: string;
   image: string;
-  marketCap: number; // Always in USD (base value).
-  currentPrice: number; // Always in USD (base value).
+  marketCap: number;
+  currentPrice: number;
+  priceChangePercentage24h?: number;
+  priceChangePercentage7d?: number;
+  sparklineData?: number[];
 }
 
-export default function CoinCard({ id, name, symbol, image, marketCap, currentPrice }: CoinCardProps) {
+const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
+  const {
+    id,
+    name,
+    symbol,
+    image,
+    marketCap,
+    currentPrice,
+    priceChangePercentage24h = 0,
+    priceChangePercentage7d = 0,
+    sparklineData = [],
+  } = props;
   const navigate = useNavigate();
   const { currency } = useCurrency();
-
-  // Convert USD values to selected currency.
-  const conversionRate = CONVERSION_RATES[currency];
-  const displayMarketCap = marketCap * conversionRate;
-  const displayPrice = currentPrice * conversionRate;
   const currencySymbol = CURRENCY_SYMBOLS[currency];
 
   // Format large numbers with commas.
   const formatNumber = (num: number) => {
-    if (currency === 'BTC') {
-      return num.toFixed(8); // Bitcoin needs more decimal places.
-    }
     return num.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
   };
 
+  // Format percentage with 2 decimal places and + sign for positive values.
+  const formatPercentage = (percent: number) => {
+    const sign = percent > 0 ? '+' : '';
+    return `${sign}${percent.toFixed(2)}%`;
+  };
+
+  // Handle card click to navigate to coin detail page.
   const handleClick = () => {
     navigate(`/coin/${id}`);
   };
+
+  const sparklinePath = generateSparklinePath(sparklineData, 120, 40);
+  const trend = getSparklineTrend(sparklineData);
+  const sparklineColor = trend === 'up' ? '#4caf50' : trend === 'down' ? '#f44336' : '#B0B0B0';
+  const priceChangeColor = priceChangePercentage24h > 0 ? '#4caf50' : '#f44336';
 
   return (
     <Card
@@ -73,18 +93,28 @@ export default function CoinCard({ id, name, symbol, image, marketCap, currentPr
           {/* Market Cap */}
           <Box sx={{ minWidth: 180, textAlign: 'right' }}>
             <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
-              {currencySymbol} {formatNumber(displayMarketCap)}
+              {currencySymbol} {formatNumber(marketCap)}
             </Typography>
           </Box>
 
           {/* Current Price */}
           <Box sx={{ minWidth: 120, textAlign: 'right' }}>
             <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
-              {currencySymbol} {formatNumber(displayPrice)}
+              {currencySymbol} {formatNumber(currentPrice)}
             </Typography>
           </Box>
 
-          {/* Sparkline Placeholder */}
+          {/* 24h & 7d Price Changes */}
+          <Box sx={{ minWidth: 100, textAlign: 'right' }}>
+            <Typography variant="body2" sx={{ color: priceChangeColor, fontWeight: 500 }}>
+              {formatPercentage(priceChangePercentage24h)}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#B0B0B0' }}>
+              7d: {formatPercentage(priceChangePercentage7d)}
+            </Typography>
+          </Box>
+
+          {/* Sparkline */}
           <Box
             sx={{
               minWidth: 120,
@@ -94,17 +124,20 @@ export default function CoinCard({ id, name, symbol, image, marketCap, currentPr
               justifyContent: 'center',
             }}
           >
-            <svg width="120" height="40" viewBox="0 0 120 40">
-              <polyline
-                points="0,30 20,25 40,28 60,15 80,18 100,8 120,12"
-                fill="none"
-                stroke="#4CAF50"
-                strokeWidth="2"
-              />
-            </svg>
+            {sparklinePath ? (
+              <svg width="120" height="40" viewBox="0 0 120 40">
+                <polyline points={sparklinePath} fill="none" stroke={sparklineColor} strokeWidth="2" />
+              </svg>
+            ) : (
+              <Typography variant="caption" sx={{ color: '#B0B0B0' }}>
+                No data
+              </Typography>
+            )}
           </Box>
         </Box>
       </CardContent>
     </Card>
   );
 }
+
+export default CoinCard;

@@ -40,6 +40,13 @@ const CoinListHeader: FunctionComponent = () => {
           </Typography>
         </Box>
 
+        {/* 24h Change header. */}
+        <Box sx={{ minWidth: 100, textAlign: 'right' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+            24h
+          </Typography>
+        </Box>
+
         {/* Last 7 Days header. */}
         <Box sx={{ minWidth: 120, textAlign: 'center' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>

@@ -1,14 +1,6 @@
 import CoinCard from './CoinCard';
 import type { FunctionComponent } from 'react';
-
-interface Coin {
-  id: string;
-  name: string;
-  symbol: string;
-  image: string;
-  marketCap: number;
-  currentPrice: number;
-}
+import type { Coin } from '../store/apiSlice';
 
 interface CoinListProps {
   coins: Coin[];
@@ -26,6 +18,9 @@ const CoinList: FunctionComponent<CoinListProps> = ({ coins }: CoinListProps) =>
         image={coin.image}
         marketCap={coin.marketCap}
         currentPrice={coin.currentPrice}
+        priceChangePercentage24h={coin.priceChangePercentage24h}
+        priceChangePercentage7d={coin.priceChangePercentage7d}
+        sparklineData={coin.sparklineData}
       />
     ))
   );
