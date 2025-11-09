@@ -307,6 +307,9 @@ const CoinDetails: FunctionComponent = () => {
                       stroke="#B0B0B0"
                       tickFormatter={(value) => {
                         const converted = convertCurrency(value, currency);
+                        if (converted >= 1_000_000_000_000) {
+                          return `${(converted / 1_000_000_000_000).toFixed(1)}T`;
+                        }
                         if (converted >= 1_000_000_000) {
                           return `${(converted / 1_000_000_000).toFixed(1)}B`;
                         }
