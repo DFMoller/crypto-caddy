@@ -5,6 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from '../components/Header';
 import Breadcrumbs from '../components/Breadcrumbs';
+import CoinGeckoAttribution from '../components/CoinGeckoAttribution';
 import DetailsSkeleton from '../components/DetailsSkeleton';
 import ErrorBanner from '../components/ErrorBanner';
 import { useCurrency } from '../hooks/useCurrency';
@@ -97,7 +98,10 @@ const CoinDetails: FunctionComponent = () => {
     return (
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header />
-        <Breadcrumbs />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Breadcrumbs />
+          <CoinGeckoAttribution />
+        </Box>
         <Container maxWidth="lg" sx={{ paddingY: 4 }}>
           <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
             Back to Dashboard
@@ -117,7 +121,10 @@ const CoinDetails: FunctionComponent = () => {
     return (
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header />
-        <Breadcrumbs />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Breadcrumbs />
+          <CoinGeckoAttribution />
+        </Box>
         <Container maxWidth="lg" sx={{ paddingY: 4 }}>
           <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
             Back to Dashboard
@@ -169,7 +176,10 @@ const CoinDetails: FunctionComponent = () => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
       <Header />
-      <Breadcrumbs />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Breadcrumbs />
+        <CoinGeckoAttribution />
+      </Box>
 
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
         <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">

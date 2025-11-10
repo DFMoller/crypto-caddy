@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, type FunctionComponent } from 'react';
 import { Box, Container } from '@mui/material';
 import Header from '../components/Header';
 import Breadcrumbs from '../components/Breadcrumbs';
+import CoinGeckoAttribution from '../components/CoinGeckoAttribution';
 import CoinList from '../components/CoinList';
 import CoinListHeader from '../components/CoinListHeader';
 import LoadingSkeleton from '../components/LoadingSkeleton';
@@ -64,7 +65,10 @@ const Dashboard: FunctionComponent = () => {
   return (
     <Box sx={{ backgroundColor: 'background.default' }}>
       <Header />
-      <Breadcrumbs />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Breadcrumbs />
+        <CoinGeckoAttribution />
+      </Box>
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
         {error && <ErrorBanner error={error} onRetry={refetch} showCachedDataIndicator={!!data} />}
         <CoinListHeader />
