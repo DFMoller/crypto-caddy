@@ -7,8 +7,6 @@ services:
       dockerfile: Dockerfile
     container_name: crypto-caddy-app
     restart: unless-stopped
-    ports:
-      - '8080:80'
     environment:
       - NODE_ENV=production
     healthcheck:
@@ -19,6 +17,20 @@ services:
       start_period: 40s
     networks:
       - crypto-caddy-network
+
+  # Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: crypto-caddy-cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - ./cloudflared/credentials.json:/etc/cloudflared/credentials.json:ro
+    networks:
+      - crypto-caddy-network
+    depends_on:
+      - crypto-caddy
 
 networks:
   crypto-caddy-network:
