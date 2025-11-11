@@ -1,0 +1,125 @@
+# Cloudflare Tunnel Configuration
+#
+# ====================================================================================
+# OPTION 1: CLI-Based Setup (Recommended)
+# ====================================================================================
+#
+# Prerequisites:
+# - Install cloudflared CLI: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+# - Have your Cloudflare account credentials ready
+#
+# Step 1: Authenticate with Cloudflare
+# --------------------------------------
+# Run this command and follow the browser login prompt:
+#
+#   cloudflared tunnel login
+#
+# This will download a cert.pem file to ~/.cloudflared/
+#
+# Step 2: Create a new tunnel
+# ----------------------------
+# Create a tunnel named "crypto-caddy":
+#
+#   cloudflared tunnel create crypto-caddy
+#
+# This will:
+# - Create the tunnel in your Cloudflare account
+# - Generate a credentials JSON file (e.g., ~/.cloudflared/UUID.json)
+# - Display the tunnel UUID
+#
+# Example output:
+#   Tunnel credentials written to /home/user/.cloudflared/12345678-1234-1234-1234-123456789abc.json
+#   Created tunnel crypto-caddy with id 12345678-1234-1234-1234-123456789abc
+#
+# Step 3: Copy credentials to this directory
+# -------------------------------------------
+# Copy the generated credentials file:
+#
+#   cp ~/.cloudflared/YOUR_TUNNEL_UUID.json ./cloudflared/credentials.json
+#
+# Step 4: Update this config file
+# --------------------------------
+# Replace YOUR_TUNNEL_ID below with the actual tunnel UUID from Step 2.
+#
+# Step 5: Configure DNS routing
+# ------------------------------
+# Create a DNS CNAME record pointing to your tunnel:
+#
+#   cloudflared tunnel route dns crypto-caddy crypto.lunarlab.co.za
+#
+# This automatically creates a CNAME record in your Cloudflare DNS:
+#   crypto.lunarlab.co.za -> UUID.cfargotunnel.com
+#
+# Step 6: Start the tunnel
+# -------------------------
+# Start your docker-compose stack:
+#
+#   docker-compose up -d
+#
+# Verify the tunnel is running:
+#
+#   cloudflared tunnel info crypto-caddy
+#
+# ====================================================================================
+# OPTION 2: Dashboard-Based Setup
+# ====================================================================================
+#
+# 1. Create a NEW tunnel in your Cloudflare Zero Trust dashboard
+#    a. Navigate to: Zero Trust > Networks > Tunnels > Create Tunnel
+#    b. Choose "Cloudflared" as the connector type
+#    c. Name it something like "crypto-caddy" or "crypto-dashboard"
+#    d. Save the tunnel
+#
+# 2. Get the tunnel credentials:
+#    a. After creating, you'll see the tunnel ID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+#    b. Download or copy the credentials JSON
+#    c. Replace YOUR_TUNNEL_ID below with the actual tunnel ID
+#    d. Save the credentials JSON as cloudflared/credentials.json
+#
+# 3. Configure the public hostname in Cloudflare dashboard:
+#    a. In your tunnel settings, go to "Public Hostname" tab
+#    b. Add hostname: crypto.lunarlab.co.za (or your desired subdomain)
+#    c. Service type: HTTP
+#    d. URL: crypto-caddy-app:80
+#
+# 4. Start the services: docker-compose up -d
+#
+# ====================================================================================
+# Useful CLI Commands
+# ====================================================================================
+#
+# List all tunnels:
+#   cloudflared tunnel list
+#
+# Get tunnel info:
+#   cloudflared tunnel info crypto-caddy
+#
+# Delete a tunnel:
+#   cloudflared tunnel delete crypto-caddy
+#
+# Clean up unused tunnels:
+#   cloudflared tunnel cleanup crypto-caddy
+#
+# Route traffic (DNS):
+#   cloudflared tunnel route dns <tunnel-name> <hostname>
+#
+# Route traffic (IP):
+#   cloudflared tunnel route ip add <ip-range> <tunnel-name>
+#
+# Show all routes:
+#   cloudflared tunnel route ip show
+#
+# For more info: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/
+#
+# ====================================================================================
+
+tunnel: aef2fff2-5067-4b75-94ac-6ef91593cb07
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  # Route traffic from crypto.lunarlab.co.za to the crypto-caddy app
+  - hostname: crypto.lunarlab.co.za
+    service: http://crypto-caddy-app:80
+
+  # Catch-all rule (required)
+  - service: http_status:404

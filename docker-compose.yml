@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  crypto-caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crypto-caddy-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - crypto-caddy-network
+
+  # Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: crypto-caddy-cloudflare-tunnel
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - ./cloudflared/credentials.json:/etc/cloudflared/credentials.json:ro
+    networks:
+      - crypto-caddy-network
+    depends_on:
+      - crypto-caddy
+
+networks:
+  crypto-caddy-network:
+    driver: bridge
