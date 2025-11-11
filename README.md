@@ -41,11 +41,13 @@ To get higher rate limits, you can use a CoinGecko API key:
 For production deployments, configuration is handled via a volume-mounted `config.js` file. This allows you to use the same Docker image across different environments.
 
 1. Copy the example configuration:
+
    ```bash
    cp config.production.example.js config.js
    ```
 
 2. Edit `config.js` with your actual values:
+
    ```javascript
    window.APP_CONFIG = {
      COINGECKO_API_KEY: 'CG-your-actual-key-here',
@@ -62,6 +64,7 @@ For production deployments, configuration is handled via a volume-mounted `confi
 1. Create your `config.js` file (see Configuration section above)
 
 2. Update `docker-compose.yml` to mount your config file:
+
    ```yaml
    volumes:
      - ./config.js:/usr/share/nginx/html/config.js:ro
@@ -75,6 +78,7 @@ For production deployments, configuration is handled via a volume-mounted `confi
 The application will be available at `http://localhost:8080`
 
 To stop:
+
 ```bash
 docker-compose down
 ```
