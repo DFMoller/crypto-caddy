@@ -30,8 +30,7 @@ const DetailsSkeleton: FunctionComponent = () => {
           <Card
             sx={{
               backgroundColor: '#2C2C2C',
-              borderRadius: 3,
-              padding: 3,
+              padding: 2,
             }}
           >
             <CardContent>
@@ -59,8 +58,7 @@ const DetailsSkeleton: FunctionComponent = () => {
           <Card
             sx={{
               backgroundColor: '#2C2C2C',
-              borderRadius: 3,
-              padding: 3,
+              padding: 2,
             }}
           >
             <CardContent>

@@ -15,11 +15,11 @@ interface CoinGeckoMarketData {
   fully_diluted_valuation: number | null;
   high_24h: number;
   low_24h: number;
-  price_change_24h: number;
-  price_change_percentage_24h: number;
+  price_change_24h: number | null;
+  price_change_percentage_24h: number | null;
   market_cap_change_24h: number;
   market_cap_change_percentage_24h: number;
-  price_change_percentage_7d_in_currency?: number;
+  price_change_percentage_7d_in_currency?: number | null;
   ath: number;
   ath_change_percentage: number;
   ath_date: string;
@@ -41,9 +41,9 @@ export interface Coin {
   marketCap: number;
   marketCapRank: number;
   currentPrice: number;
-  priceChange24h: number;
-  priceChangePercentage24h: number;
-  priceChangePercentage7d: number;
+  priceChange24h: number | null;
+  priceChangePercentage24h: number | null;
+  priceChangePercentage7d: number | null;
   sparklineData: number[];
   lastUpdated: string;
 }
@@ -62,16 +62,47 @@ const transformCoinData = (apiData: CoinGeckoMarketData): Coin => {
     currentPrice: apiData.current_price,
     priceChange24h: apiData.price_change_24h,
     priceChangePercentage24h: apiData.price_change_percentage_24h,
-    priceChangePercentage7d: apiData.price_change_percentage_7d_in_currency || 0,
+    priceChangePercentage7d: apiData.price_change_percentage_7d_in_currency ?? null,
     sparklineData: apiData.sparkline_in_7d?.price || [],
     lastUpdated: apiData.last_updated,
   };
 };
 
+// Runtime configuration interface.
+interface RuntimeConfig {
+  COINGECKO_API_KEY?: string | null;
+  COINGECKO_BASE_URL?: string | null;
+}
+
+// Extend window interface to include APP_CONFIG.
+declare global {
+  interface Window {
+    APP_CONFIG?: RuntimeConfig;
+  }
+}
+
+// Get runtime config from window (set by config.js) or fall back to build-time env vars.
+const getRuntimeConfig = (): RuntimeConfig => {
+  if (typeof window !== 'undefined' && window.APP_CONFIG) {
+    return window.APP_CONFIG;
+  }
+  return {};
+};
+
+const runtimeConfig = getRuntimeConfig();
+
 // Use the api key if provided, else default to public api which is the same, but rate limited
 // more heavily.
-const API_KEY = import.meta.env.COINGECKO_API_KEY;
-const BASE_URL = import.meta.env.COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3';
+const API_KEY = runtimeConfig.COINGECKO_API_KEY || import.meta.env.VITE_COINGECKO_API_KEY;
+const BASE_URL =
+  runtimeConfig.COINGECKO_BASE_URL || import.meta.env.VITE_COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3';
+
+// Log API key usage for debugging.
+if (API_KEY) {
+  console.debug('CoinGecko API: Using API client key');
+} else {
+  console.debug('CoinGecko API: Using public API (heavily rate limited)');
+}
 
 /**
  * RTK Query API slice for CoinGecko.
@@ -179,10 +210,13 @@ interface CoinGeckoDetailsResponse {
     total_supply: number | null;
     max_supply: number | null;
     market_cap_rank: number;
-    price_change_percentage_24h: number;
-    price_change_percentage_7d: number;
-    price_change_percentage_30d: number;
-    price_change_percentage_1y: number;
+    // Although coingecko's api docs show these as numbers, they have been found to
+    // be null for some edge cases like when a new coin is listed with insufficient
+    // data.
+    price_change_percentage_24h: number | null;
+    price_change_percentage_7d: number | null;
+    price_change_percentage_30d: number | null;
+    price_change_percentage_1y: number | null;
     ath: { [currency: string]: number };
     atl: { [currency: string]: number };
   };
@@ -204,10 +238,10 @@ export interface ICoinDetails {
   totalSupply: number;
   maxSupply: number | null;
   marketRank: number;
-  priceChange24h: number;
-  priceChange7d: number;
-  priceChange30d: number;
-  priceChange1y: number;
+  priceChange24h: number | null;
+  priceChange7d: number | null;
+  priceChange30d: number | null;
+  priceChange1y: number | null;
   allTimeHigh: number;
   allTimeLow: number;
 }

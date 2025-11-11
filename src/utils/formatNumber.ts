@@ -35,7 +35,8 @@ export const formatNumber = (num: number, currency?: Currency, useAbbreviation =
 /**
  * Formats a percentage value with + or - sign and 2 decimal places.
  */
-export const formatPercentage = (value: number): string => {
+export const formatPercentage = (value: number | null): string => {
+  if (value === null) return 'N/A';
   const sign = value > 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
 };

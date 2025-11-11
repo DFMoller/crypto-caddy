@@ -41,6 +41,31 @@ interface DisplayChartDataPoint {
 }
 
 /**
+ * Props for the BackButton component.
+ */
+interface BackButtonProps {
+  /** Click handler for navigating back. */
+  onClick: () => void;
+}
+
+/**
+ * BackButton component for navigating back to the dashboard.
+ *
+ * Displays a button with back arrow icon and "Back to Dashboard" text.
+ * Used consistently across loading, error, and loaded states.
+ *
+ * @param onClick - Click handler for back navigation
+ * @returns A styled back button component
+ */
+const BackButton: FunctionComponent<BackButtonProps> = ({ onClick }) => {
+  return (
+    <Button startIcon={<ArrowBackIcon />} onClick={onClick} sx={{ marginBottom: 3 }} variant="outlined">
+      Back to Dashboard
+    </Button>
+  );
+};
+
+/**
  * CoinDetails page component.
  *
  * Displays cryptocurrency information including:
@@ -103,9 +128,7 @@ const CoinDetails: FunctionComponent = () => {
           <CoinGeckoAttribution />
         </Box>
         <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-          <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
-            Back to Dashboard
-          </Button>
+          <BackButton onClick={handleBack} />
           <ErrorBanner
             error={detailsError || chartError}
             onRetry={() => window.location.reload()}
@@ -126,9 +149,7 @@ const CoinDetails: FunctionComponent = () => {
           <CoinGeckoAttribution />
         </Box>
         <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-          <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
-            Back to Dashboard
-          </Button>
+          <BackButton onClick={handleBack} />
           <DetailsSkeleton />
         </Container>
       </Box>
@@ -182,9 +203,7 @@ const CoinDetails: FunctionComponent = () => {
       </Box>
 
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
-          Back to Dashboard
-        </Button>
+        <BackButton onClick={handleBack} />
 
         {/* Coin header with icon, name, and prominent price. */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
@@ -212,7 +231,8 @@ const CoinDetails: FunctionComponent = () => {
             <Typography
               variant="body2"
               sx={{
-                color: coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336',
+                color:
+                  coinData.priceChange24h === null ? '#B0B0B0' : coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336',
                 textAlign: 'right',
                 fontWeight: 500,
               }}
@@ -235,8 +255,7 @@ const CoinDetails: FunctionComponent = () => {
             <Card
               sx={{
                 backgroundColor: '#2C2C2C',
-                borderRadius: 3,
-                padding: 3,
+                padding: 2,
                 color: '#FFFFFF',
               }}
             >
@@ -254,22 +273,30 @@ const CoinDetails: FunctionComponent = () => {
                 <DataRow
                   label="24h Price Change"
                   value={formatPercentage(coinData.priceChange24h)}
-                  valueColor={coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange24h === null ? '#B0B0B0' : coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow
                   label="7d Price Change"
                   value={formatPercentage(coinData.priceChange7d)}
-                  valueColor={coinData.priceChange7d >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange7d === null ? '#B0B0B0' : coinData.priceChange7d >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow
                   label="30d Price Change"
                   value={formatPercentage(coinData.priceChange30d)}
-                  valueColor={coinData.priceChange30d >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange30d === null ? '#B0B0B0' : coinData.priceChange30d >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow
                   label="1y Price Change"
                   value={formatPercentage(coinData.priceChange1y)}
-                  valueColor={coinData.priceChange1y >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange1y === null ? '#B0B0B0' : coinData.priceChange1y >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow label="All-Time High" value={formatCurrency(coinData.allTimeHigh, currency)} />
                 <DataRow label="All-Time Low" value={formatCurrency(coinData.allTimeLow, currency)} />
@@ -283,8 +310,7 @@ const CoinDetails: FunctionComponent = () => {
             <Card
               sx={{
                 backgroundColor: '#2C2C2C',
-                borderRadius: 3,
-                padding: 3,
+                padding: 2,
                 color: '#FFFFFF',
               }}
             >
@@ -296,24 +322,12 @@ const CoinDetails: FunctionComponent = () => {
                     <Button
                       onClick={() => setMetricType('price')}
                       variant={metricType === 'price' ? 'contained' : 'outlined'}
-                      sx={{
-                        borderRadius: 20,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        minWidth: 80,
-                      }}
                     >
                       Price
                     </Button>
                     <Button
                       onClick={() => setMetricType('marketCap')}
                       variant={metricType === 'marketCap' ? 'contained' : 'outlined'}
-                      sx={{
-                        borderRadius: 20,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        minWidth: 80,
-                      }}
                     >
                       Market Cap
                     </Button>
