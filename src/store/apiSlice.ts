@@ -68,10 +68,40 @@ const transformCoinData = (apiData: CoinGeckoMarketData): Coin => {
   };
 };
 
+// Runtime configuration interface.
+interface RuntimeConfig {
+  COINGECKO_API_KEY?: string | null;
+  COINGECKO_BASE_URL?: string | null;
+}
+
+// Extend window interface to include APP_CONFIG.
+declare global {
+  interface Window {
+    APP_CONFIG?: RuntimeConfig;
+  }
+}
+
+// Get runtime config from window (set by config.js) or fall back to build-time env vars.
+const getRuntimeConfig = (): RuntimeConfig => {
+  if (typeof window !== 'undefined' && window.APP_CONFIG) {
+    return window.APP_CONFIG;
+  }
+  return {};
+};
+
+const runtimeConfig = getRuntimeConfig();
+
 // Use the api key if provided, else default to public api which is the same, but rate limited
 // more heavily.
-const API_KEY = import.meta.env.COINGECKO_API_KEY;
-const BASE_URL = import.meta.env.COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3';
+const API_KEY = runtimeConfig.COINGECKO_API_KEY || import.meta.env.VITE_COINGECKO_API_KEY;
+const BASE_URL = runtimeConfig.COINGECKO_BASE_URL || import.meta.env.VITE_COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3';
+
+// Log API key usage for debugging.
+if (API_KEY) {
+  console.debug('CoinGecko API: Using API client key');
+} else {
+  console.debug('CoinGecko API: Using public API (heavily rate limited)');
+}
 
 /**
  * RTK Query API slice for CoinGecko.

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   crypto-caddy:
     build:
@@ -9,6 +7,9 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+    # Uncomment to mount custom configuration (see config.production.example.js)
+    # volumes:
+      # - ./configs/config.js:/usr/share/nginx/html/config.js:ro
     healthcheck:
       test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/health']
       interval: 30s
