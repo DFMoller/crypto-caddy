@@ -10,7 +10,7 @@ const Breadcrumbs: FunctionComponent = () => {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
-    <Box sx={{ padding: '16px 24px' }}>
+    <Box sx={{ padding: '16px 24px', display: { xs: 'none', md: 'block' } }}>
       <MuiBreadcrumbs aria-label="breadcrumb">
         <Link
           component={RouterLink}

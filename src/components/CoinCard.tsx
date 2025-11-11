@@ -102,14 +102,14 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
           </Box>
 
           {/* Current Price */}
-          <Box sx={{ minWidth: 120, textAlign: 'right' }}>
+          <Box sx={{ minWidth: 120, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
             <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
               {currencySymbol} {formatNumber(currentPrice)}
             </Typography>
           </Box>
 
           {/* 24h & 7d Price Changes */}
-          <Box sx={{ minWidth: 100, textAlign: 'right' }}>
+          <Box sx={{ minWidth: 100, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
             <Typography variant="body2" sx={{ color: priceChangeColor, fontWeight: 500 }}>
               {formatPercentage(priceChangePercentage24h)}
             </Typography>
@@ -123,7 +123,7 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
             sx={{
               minWidth: 120,
               height: 40,
-              display: 'flex',
+              display: { xs: 'none', md: 'flex' },
               alignItems: 'center',
               justifyContent: 'center',
             }}

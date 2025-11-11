@@ -14,7 +14,6 @@ const CoinListHeader: FunctionComponent = () => {
         paddingX: 3,
         paddingY: 2,
         marginX: 'auto',
-        marginBottom: 2,
       }}
     >
       {/* Coin name column header (left side). */}
@@ -34,21 +33,21 @@ const CoinListHeader: FunctionComponent = () => {
         </Box>
 
         {/* Price header. */}
-        <Box sx={{ minWidth: 120, textAlign: 'right' }}>
+        <Box sx={{ minWidth: 120, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             Price
           </Typography>
         </Box>
 
         {/* 24h Change header. */}
-        <Box sx={{ minWidth: 100, textAlign: 'right' }}>
+        <Box sx={{ minWidth: 100, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             24h
           </Typography>
         </Box>
 
         {/* Last 7 Days header. */}
-        <Box sx={{ minWidth: 120, textAlign: 'center' }}>
+        <Box sx={{ minWidth: 120, textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             Last 7 Days
           </Typography>

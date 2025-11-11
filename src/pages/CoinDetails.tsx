@@ -41,6 +41,31 @@ interface DisplayChartDataPoint {
 }
 
 /**
+ * Props for the BackButton component.
+ */
+interface BackButtonProps {
+  /** Click handler for navigating back. */
+  onClick: () => void;
+}
+
+/**
+ * BackButton component for navigating back to the dashboard.
+ *
+ * Displays a button with back arrow icon and "Back to Dashboard" text.
+ * Used consistently across loading, error, and loaded states.
+ *
+ * @param onClick - Click handler for back navigation
+ * @returns A styled back button component
+ */
+const BackButton: FunctionComponent<BackButtonProps> = ({ onClick }) => {
+  return (
+    <Button startIcon={<ArrowBackIcon />} onClick={onClick} sx={{ marginBottom: 3 }} variant="outlined">
+      Back to Dashboard
+    </Button>
+  );
+};
+
+/**
  * CoinDetails page component.
  *
  * Displays cryptocurrency information including:
@@ -103,9 +128,7 @@ const CoinDetails: FunctionComponent = () => {
           <CoinGeckoAttribution />
         </Box>
         <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-          <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
-            Back to Dashboard
-          </Button>
+          <BackButton onClick={handleBack} />
           <ErrorBanner
             error={detailsError || chartError}
             onRetry={() => window.location.reload()}
@@ -126,9 +149,7 @@ const CoinDetails: FunctionComponent = () => {
           <CoinGeckoAttribution />
         </Box>
         <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-          <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
-            Back to Dashboard
-          </Button>
+          <BackButton onClick={handleBack} />
           <DetailsSkeleton />
         </Container>
       </Box>
@@ -182,9 +203,7 @@ const CoinDetails: FunctionComponent = () => {
       </Box>
 
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ marginBottom: 3 }} variant="outlined">
-          Back to Dashboard
-        </Button>
+        <BackButton onClick={handleBack} />
 
         {/* Coin header with icon, name, and prominent price. */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
@@ -235,8 +254,7 @@ const CoinDetails: FunctionComponent = () => {
             <Card
               sx={{
                 backgroundColor: '#2C2C2C',
-                borderRadius: 3,
-                padding: 3,
+                padding: 2,
                 color: '#FFFFFF',
               }}
             >
@@ -283,8 +301,7 @@ const CoinDetails: FunctionComponent = () => {
             <Card
               sx={{
                 backgroundColor: '#2C2C2C',
-                borderRadius: 3,
-                padding: 3,
+                padding: 2,
                 color: '#FFFFFF',
               }}
             >
@@ -296,24 +313,12 @@ const CoinDetails: FunctionComponent = () => {
                     <Button
                       onClick={() => setMetricType('price')}
                       variant={metricType === 'price' ? 'contained' : 'outlined'}
-                      sx={{
-                        borderRadius: 20,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        minWidth: 80,
-                      }}
                     >
                       Price
                     </Button>
                     <Button
                       onClick={() => setMetricType('marketCap')}
                       variant={metricType === 'marketCap' ? 'contained' : 'outlined'}
-                      sx={{
-                        borderRadius: 20,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        minWidth: 80,
-                      }}
                     >
                       Market Cap
                     </Button>
