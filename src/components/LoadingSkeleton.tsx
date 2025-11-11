@@ -18,8 +18,9 @@ const LoadingSkeleton: FunctionComponent<LoadingSkeletonProps> = ({ count = 2 })
               display: 'flex',
               alignItems: 'center',
               gap: 2,
-              padding: 3,
-              '&:last-child': { paddingBottom: 3 },
+              paddingY: 1,
+              paddingX: 3,
+              '&:last-child': { paddingBottom: 1 },
             }}
           >
             {/* Coin icon skeleton */}

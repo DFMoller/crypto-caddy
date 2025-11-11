@@ -68,7 +68,7 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
       onClick={handleClick}
       sx={{
         cursor: 'pointer',
-        marginBottom: 2,
+        marginBottom: 1,
         transition: 'all 0.2s ease-in-out',
       }}
     >
@@ -77,8 +77,11 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 3,
-          '&:last-child': { paddingBottom: 3 },
+          paddingY: 1,
+          paddingX: 3,
+          // The MUI card content adds padding to the last child. So to make the cards
+          // more compact, we override that here.
+          '&:last-child': { paddingBottom: 1 },
         }}
       >
         {/* Coin Icon & Name (left side) */}
