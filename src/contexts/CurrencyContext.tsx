@@ -29,12 +29,12 @@ export const CurrencyProvider = ({ children }: CurrencyProviderProps) => {
   // Initialize URL with default currency if not present.
   useEffect(() => {
     if (!searchParams.has('currency')) {
-      setSearchParams({ currency: 'ZAR' });
+      setSearchParams({ currency: 'ZAR' }, { replace: true });
     }
   }, [searchParams, setSearchParams]);
 
   const setCurrency = (newCurrency: Currency) => {
-    setSearchParams({ currency: newCurrency });
+    setSearchParams((prev) => ({ ...Object.fromEntries(prev), currency: newCurrency }));
   };
 
   return <CurrencyContext.Provider value={{ currency, setCurrency }}>{children}</CurrencyContext.Provider>;
