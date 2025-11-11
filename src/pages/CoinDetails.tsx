@@ -66,6 +66,55 @@ const BackButton: FunctionComponent<BackButtonProps> = ({ onClick }) => {
 };
 
 /**
+ * Props for the CustomTooltip component.
+ */
+interface CustomTooltipProps {
+  /** Whether the tooltip is currently active. */
+  active?: boolean;
+  /** Array containing the data point payload. */
+  payload?: { payload: DisplayChartDataPoint }[];
+}
+
+/**
+ * Custom tooltip component for the Recharts chart.
+ *
+ * Displays when hovering over the chart, showing:
+ * - Date and time of the data point
+ * - Value (price or market cap) in the selected currency
+ *
+ * @param active - Whether the tooltip is currently active
+ * @param payload - Array containing the data point payload
+ * @returns Tooltip component or null if not active
+ */
+const CustomTooltip: FunctionComponent<CustomTooltipProps> = ({ active, payload }) => {
+  const { currency } = useCurrency();
+
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const date = new Date(data.timestamp);
+
+    return (
+      <Box
+        sx={{
+          backgroundColor: '#2C2C2C',
+          padding: 2,
+          borderRadius: 2,
+          border: '1px solid #444',
+        }}
+      >
+        <Typography variant="body2" sx={{ color: '#B0B0B0' }}>
+          {date.toLocaleDateString()} {date.toLocaleTimeString()}
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
+          {formatCurrency(data.value, currency)}
+        </Typography>
+      </Box>
+    );
+  }
+  return null;
+};
+
+/**
  * CoinDetails page component.
  *
  * Displays cryptocurrency information including:
@@ -119,81 +168,6 @@ const CoinDetails: FunctionComponent = () => {
   const chartColor = isUpTrend ? '#4caf50' : '#f44336'; // Green or red.
 
   // Show error banner if either API call fails.
-  if (detailsError || chartError) {
-    return (
-      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Breadcrumbs />
-          <CoinGeckoAttribution />
-        </Box>
-        <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-          <BackButton onClick={handleBack} />
-          <ErrorBanner
-            error={detailsError || chartError}
-            onRetry={() => window.location.reload()}
-            showCachedDataIndicator={false}
-          />
-        </Container>
-      </Box>
-    );
-  }
-
-  // Show loading skeleton while data is loading.
-  if (detailsLoading || chartLoading || !coinData) {
-    return (
-      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
-        <Header />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Breadcrumbs />
-          <CoinGeckoAttribution />
-        </Box>
-        <Container maxWidth="lg" sx={{ paddingY: 4 }}>
-          <BackButton onClick={handleBack} />
-          <DetailsSkeleton />
-        </Container>
-      </Box>
-    );
-  }
-
-  /**
-   * Custom tooltip component for the Recharts chart.
-   *
-   * Displays when hovering over the chart, showing:
-   * - Date and time of the data point
-   * - Value (price or market cap) in the selected currency
-   *
-   * @param active - Whether the tooltip is currently active
-   * @param payload - Array containing the data point payload
-   * @returns Tooltip component or null if not active
-   */
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: DisplayChartDataPoint }[] }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      const date = new Date(data.timestamp);
-
-      return (
-        <Box
-          sx={{
-            backgroundColor: '#2C2C2C',
-            padding: 2,
-            borderRadius: 2,
-            border: '1px solid #444',
-          }}
-        >
-          <Typography variant="body2" sx={{ color: '#B0B0B0' }}>
-            {date.toLocaleDateString()} {date.toLocaleTimeString()}
-          </Typography>
-          <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
-            {formatCurrency(data.value, currency)}
-          </Typography>
-        </Box>
-      );
-    }
-    return null;
-  };
-
-  // Main render of the CoinDetails page after loading.
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
       <Header />
@@ -201,211 +175,244 @@ const CoinDetails: FunctionComponent = () => {
         <Breadcrumbs />
         <CoinGeckoAttribution />
       </Box>
-
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
         <BackButton onClick={handleBack} />
 
-        {/* Coin header with icon, name, and prominent price. */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
-          <img
-            src={coinData.image}
-            alt={coinData.name}
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: '50%',
-            }}
+        {detailsError || chartError ? (
+          <ErrorBanner
+            error={detailsError || chartError}
+            onRetry={() => window.location.reload()}
+            showCachedDataIndicator={false}
           />
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-              {coinData.name}
-            </Typography>
-            <Typography variant="body1" sx={{ color: '#B0B0B0' }}>
-              {coinData.symbol.toUpperCase()}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600, textAlign: 'right' }}>
-              {formatCurrency(coinData.currentPrice, currency)}
-            </Typography>
-            <Typography
-              variant="body2"
+        ) : null}
+
+        {detailsLoading || chartLoading || !coinData ? <DetailsSkeleton /> : null}
+
+        {/* Coin header with icon, name, and prominent price. */}
+        {!detailsLoading && !chartLoading && coinData && !detailsError && !chartError ? (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
+              <img
+                src={coinData.image}
+                alt={coinData.name}
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                  {coinData.name}
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#B0B0B0' }}>
+                  {coinData.symbol.toUpperCase()}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600, textAlign: 'right' }}>
+                  {formatCurrency(coinData.currentPrice, currency)}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color:
+                      coinData.priceChange24h === null
+                        ? '#B0B0B0'
+                        : coinData.priceChange24h >= 0
+                          ? '#4caf50'
+                          : '#f44336',
+                    textAlign: 'right',
+                    fontWeight: 500,
+                  }}
+                >
+                  {formatPercentage(coinData.priceChange24h)}
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Responsive layout with table and chart. */}
+            <Box
               sx={{
-                color:
-                  coinData.priceChange24h === null ? '#B0B0B0' : coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336',
-                textAlign: 'right',
-                fontWeight: 500,
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+                gap: 2,
               }}
             >
-              {formatPercentage(coinData.priceChange24h)}
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Responsive layout with table and chart. */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'column', md: 'row' },
-            gap: 2,
-          }}
-        >
-          {/* Left side - Data table. */}
-          <Box sx={{ flex: { md: '0 0 42%' }, width: '100%' }}>
-            <Card
-              sx={{
-                backgroundColor: '#2C2C2C',
-                padding: 2,
-                color: '#FFFFFF',
-              }}
-            >
-              <CardContent>
-                <DataRow label="Market Cap" value={formatCurrency(coinData.marketCap, currency)} />
-                <DataRow
-                  label="Fully Diluted Valuation"
-                  value={formatCurrency(coinData.fullyDilutedValuation, currency)}
-                />
-                <DataRow label="24 Hour Trading Vol" value={formatCurrency(coinData.volume24h, currency)} />
-                <DataRow label="Circulating Supply" value={formatSupply(coinData.circulatingSupply)} />
-                <DataRow label="Total Supply" value={formatSupply(coinData.totalSupply)} />
-                <DataRow label="Max Supply" value={formatSupply(coinData.maxSupply)} />
-                <DataRow label="Market Rank" value={`#${coinData.marketRank}`} />
-                <DataRow
-                  label="24h Price Change"
-                  value={formatPercentage(coinData.priceChange24h)}
-                  valueColor={
-                    coinData.priceChange24h === null ? '#B0B0B0' : coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336'
-                  }
-                />
-                <DataRow
-                  label="7d Price Change"
-                  value={formatPercentage(coinData.priceChange7d)}
-                  valueColor={
-                    coinData.priceChange7d === null ? '#B0B0B0' : coinData.priceChange7d >= 0 ? '#4caf50' : '#f44336'
-                  }
-                />
-                <DataRow
-                  label="30d Price Change"
-                  value={formatPercentage(coinData.priceChange30d)}
-                  valueColor={
-                    coinData.priceChange30d === null ? '#B0B0B0' : coinData.priceChange30d >= 0 ? '#4caf50' : '#f44336'
-                  }
-                />
-                <DataRow
-                  label="1y Price Change"
-                  value={formatPercentage(coinData.priceChange1y)}
-                  valueColor={
-                    coinData.priceChange1y === null ? '#B0B0B0' : coinData.priceChange1y >= 0 ? '#4caf50' : '#f44336'
-                  }
-                />
-                <DataRow label="All-Time High" value={formatCurrency(coinData.allTimeHigh, currency)} />
-                <DataRow label="All-Time Low" value={formatCurrency(coinData.allTimeLow, currency)} />
-              </CardContent>
-            </Card>
-          </Box>
-
-          {/* Right side - Chart. */}
-          <Box sx={{ flex: 1, width: '100%' }}>
-            {/* Chart card. */}
-            <Card
-              sx={{
-                backgroundColor: '#2C2C2C',
-                padding: 2,
-                color: '#FFFFFF',
-              }}
-            >
-              <CardContent>
-                {/* Metric selector and time range selector. */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                  {/* Metric selector (Price vs Market Cap). */}
-                  <ButtonGroup variant="outlined" size="small">
-                    <Button
-                      onClick={() => setMetricType('price')}
-                      variant={metricType === 'price' ? 'contained' : 'outlined'}
-                    >
-                      Price
-                    </Button>
-                    <Button
-                      onClick={() => setMetricType('marketCap')}
-                      variant={metricType === 'marketCap' ? 'contained' : 'outlined'}
-                    >
-                      Market Cap
-                    </Button>
-                  </ButtonGroup>
-
-                  {/* Time range selector buttons. */}
-                  <ButtonGroup variant="outlined" size="small">
-                    {(['24h', '3d', '7d', '1M', '1Y'] as TimeRange[]).map((range) => (
-                      <Button
-                        key={range}
-                        onClick={() => setTimeRange(range)}
-                        variant={timeRange === range ? 'contained' : 'outlined'}
-                        sx={{
-                          borderRadius: 20,
-                          textTransform: 'none',
-                          fontWeight: 500,
-                          minWidth: 50,
-                        }}
-                      >
-                        {range}
-                      </Button>
-                    ))}
-                  </ButtonGroup>
-                </Box>
-
-                {/* Chart. */}
-                <ResponsiveContainer width="100%" height={350}>
-                  <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                    <XAxis
-                      dataKey="timestamp"
-                      stroke="#B0B0B0"
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
-                      tickFormatter={(timestamp) => {
-                        const date = new Date(timestamp);
-                        if (timeRange === '24h' || timeRange === '3d') {
-                          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        }
-                        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-                      }}
-                      minTickGap={30}
+              {/* Left side - Data table. */}
+              <Box sx={{ flex: { md: '0 0 42%' }, width: '100%' }}>
+                <Card
+                  sx={{
+                    backgroundColor: '#2C2C2C',
+                    padding: 2,
+                    color: '#FFFFFF',
+                  }}
+                >
+                  <CardContent>
+                    <DataRow label="Market Cap" value={formatCurrency(coinData.marketCap, currency)} />
+                    <DataRow
+                      label="Fully Diluted Valuation"
+                      value={formatCurrency(coinData.fullyDilutedValuation, currency)}
                     />
-                    <YAxis
-                      stroke="#B0B0B0"
-                      domain={['dataMin - dataMin * 0.05', 'dataMax + dataMax * 0.05']}
-                      tickFormatter={(value) => {
-                        if (value >= 1_000_000_000_000) {
-                          return `${(value / 1_000_000_000_000).toFixed(1)}T`;
-                        }
-                        if (value >= 1_000_000_000) {
-                          return `${(value / 1_000_000_000).toFixed(1)}B`;
-                        }
-                        if (value >= 1_000_000) {
-                          return `${(value / 1_000_000).toFixed(1)}M`;
-                        }
-                        if (value >= 1_000) {
-                          return `${(value / 1_000).toFixed(1)}K`;
-                        }
-                        return value.toFixed(0);
-                      }}
+                    <DataRow label="24 Hour Trading Vol" value={formatCurrency(coinData.volume24h, currency)} />
+                    <DataRow label="Circulating Supply" value={formatSupply(coinData.circulatingSupply)} />
+                    <DataRow label="Total Supply" value={formatSupply(coinData.totalSupply)} />
+                    <DataRow label="Max Supply" value={formatSupply(coinData.maxSupply)} />
+                    <DataRow label="Market Rank" value={`#${coinData.marketRank}`} />
+                    <DataRow
+                      label="24h Price Change"
+                      value={formatPercentage(coinData.priceChange24h)}
+                      valueColor={
+                        coinData.priceChange24h === null
+                          ? '#B0B0B0'
+                          : coinData.priceChange24h >= 0
+                            ? '#4caf50'
+                            : '#f44336'
+                      }
                     />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke={chartColor}
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 6 }}
+                    <DataRow
+                      label="7d Price Change"
+                      value={formatPercentage(coinData.priceChange7d)}
+                      valueColor={
+                        coinData.priceChange7d === null
+                          ? '#B0B0B0'
+                          : coinData.priceChange7d >= 0
+                            ? '#4caf50'
+                            : '#f44336'
+                      }
                     />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </Box>
-        </Box>
+                    <DataRow
+                      label="30d Price Change"
+                      value={formatPercentage(coinData.priceChange30d)}
+                      valueColor={
+                        coinData.priceChange30d === null
+                          ? '#B0B0B0'
+                          : coinData.priceChange30d >= 0
+                            ? '#4caf50'
+                            : '#f44336'
+                      }
+                    />
+                    <DataRow
+                      label="1y Price Change"
+                      value={formatPercentage(coinData.priceChange1y)}
+                      valueColor={
+                        coinData.priceChange1y === null
+                          ? '#B0B0B0'
+                          : coinData.priceChange1y >= 0
+                            ? '#4caf50'
+                            : '#f44336'
+                      }
+                    />
+                    <DataRow label="All-Time High" value={formatCurrency(coinData.allTimeHigh, currency)} />
+                    <DataRow label="All-Time Low" value={formatCurrency(coinData.allTimeLow, currency)} />
+                  </CardContent>
+                </Card>
+              </Box>
+
+              {/* Right side - Chart. */}
+              <Box sx={{ flex: 1, width: '100%' }}>
+                {/* Chart card. */}
+                <Card
+                  sx={{
+                    backgroundColor: '#2C2C2C',
+                    padding: 2,
+                    color: '#FFFFFF',
+                  }}
+                >
+                  <CardContent>
+                    {/* Metric selector and time range selector. */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      {/* Metric selector (Price vs Market Cap). */}
+                      <ButtonGroup variant="outlined" size="small">
+                        <Button
+                          onClick={() => setMetricType('price')}
+                          variant={metricType === 'price' ? 'contained' : 'outlined'}
+                        >
+                          Price
+                        </Button>
+                        <Button
+                          onClick={() => setMetricType('marketCap')}
+                          variant={metricType === 'marketCap' ? 'contained' : 'outlined'}
+                        >
+                          Market Cap
+                        </Button>
+                      </ButtonGroup>
+
+                      {/* Time range selector buttons. */}
+                      <ButtonGroup variant="outlined" size="small">
+                        {(['24h', '3d', '7d', '1M', '1Y'] as TimeRange[]).map((range) => (
+                          <Button
+                            key={range}
+                            onClick={() => setTimeRange(range)}
+                            variant={timeRange === range ? 'contained' : 'outlined'}
+                            sx={{
+                              borderRadius: 20,
+                              textTransform: 'none',
+                              fontWeight: 500,
+                              minWidth: 50,
+                            }}
+                          >
+                            {range}
+                          </Button>
+                        ))}
+                      </ButtonGroup>
+                    </Box>
+
+                    {/* Chart. */}
+                    <ResponsiveContainer width="100%" height={350}>
+                      <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis
+                          dataKey="timestamp"
+                          stroke="#B0B0B0"
+                          angle={-45}
+                          textAnchor="end"
+                          height={60}
+                          tickFormatter={(timestamp) => {
+                            const date = new Date(timestamp);
+                            if (timeRange === '24h' || timeRange === '3d') {
+                              return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            }
+                            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                          }}
+                          minTickGap={30}
+                        />
+                        <YAxis
+                          stroke="#B0B0B0"
+                          domain={['dataMin - dataMin * 0.05', 'dataMax + dataMax * 0.05']}
+                          tickFormatter={(value) => {
+                            if (value >= 1_000_000_000_000) {
+                              return `${(value / 1_000_000_000_000).toFixed(1)}T`;
+                            }
+                            if (value >= 1_000_000_000) {
+                              return `${(value / 1_000_000_000).toFixed(1)}B`;
+                            }
+                            if (value >= 1_000_000) {
+                              return `${(value / 1_000_000).toFixed(1)}M`;
+                            }
+                            if (value >= 1_000) {
+                              return `${(value / 1_000).toFixed(1)}K`;
+                            }
+                            return value.toFixed(0);
+                          }}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke={chartColor}
+                          strokeWidth={2}
+                          dot={false}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </Box>
+            </Box>
+          </>
+        ) : null}
       </Container>
     </Box>
   );
