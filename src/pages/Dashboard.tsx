@@ -11,9 +11,9 @@ import InfiniteScrollLoader from '../components/InfiniteScrollLoader';
 import { useGetCoinsMarketsQuery } from '../store/apiSlice';
 import { useCurrency } from '../hooks/useCurrency';
 
-// Use infinite scroll to load up to maxCoins, 10 at a time.
-const maxCoins = 100;
-const perPage = 20;
+// Use infinite scroll to load up to maxCoins, perPage at a time.
+const maxCoins = 500;
+const perPage = 100;
 
 /**
  * The landing view of the app is a dashboard showing a list of cryptocurrencies.
@@ -50,7 +50,7 @@ const Dashboard: FunctionComponent = () => {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && data && data.length < 50 && !isFetching && !error) {
+        if (entries[0].isIntersecting && data && data.length < maxCoins && !isFetching && !error) {
           setPage((p) => p + 1);
         }
       },
