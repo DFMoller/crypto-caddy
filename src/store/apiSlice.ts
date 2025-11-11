@@ -51,7 +51,7 @@ export interface Coin {
 /**
  * Transforms CoinGecko API market data to the app's Coin format.
  */
-function transformCoinData(apiData: CoinGeckoMarketData): Coin {
+const transformCoinData = (apiData: CoinGeckoMarketData): Coin => {
   return {
     id: apiData.id,
     name: apiData.name,
@@ -66,7 +66,7 @@ function transformCoinData(apiData: CoinGeckoMarketData): Coin {
     sparklineData: apiData.sparkline_in_7d?.price || [],
     lastUpdated: apiData.last_updated,
   };
-}
+};
 
 // Use the api key if provided, else default to public api which is the same, but rate limited
 // more heavily.
@@ -215,7 +215,7 @@ export interface ICoinDetails {
 /**
  * Transforms CoinGecko API details response to the app's ICoinDetails format.
  */
-function transformCoinDetails(apiData: CoinGeckoDetailsResponse, currency: string): ICoinDetails {
+const transformCoinDetails = (apiData: CoinGeckoDetailsResponse, currency: string): ICoinDetails => {
   return {
     id: apiData.id,
     name: apiData.name,
@@ -236,7 +236,7 @@ function transformCoinDetails(apiData: CoinGeckoDetailsResponse, currency: strin
     allTimeHigh: apiData.market_data.ath[currency] || 0,
     allTimeLow: apiData.market_data.atl[currency] || 0,
   };
-}
+};
 
 /**
  * CoinGecko API response for market chart endpoint.
@@ -259,12 +259,12 @@ export interface ChartDataPoint {
 /**
  * Transforms CoinGecko API market chart response to app's chart format.
  */
-function transformMarketChart(apiData: CoinGeckoMarketChartResponse): ChartDataPoint[] {
+const transformMarketChart = (apiData: CoinGeckoMarketChartResponse): ChartDataPoint[] => {
   return apiData.prices.map((pricePoint, index) => ({
     timestamp: pricePoint[0],
     price: pricePoint[1],
     marketCap: apiData.market_caps[index]?.[1] || 0,
   }));
-}
+};
 
 export const { useGetCoinsMarketsQuery, useGetCoinDetailsQuery, useGetMarketChartQuery } = coinGeckoApi;

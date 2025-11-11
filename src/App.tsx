@@ -9,7 +9,7 @@ import Dashboard from './pages/Dashboard';
 import CoinDetails from './pages/CoinDetails';
 import { Box } from '@mui/material';
 
-function App() {
+const App = () => {
   return (
     // We use redux primarily to cache API responses.
     <ReduxProvider store={store}>
@@ -31,6 +31,6 @@ function App() {
       </ThemeProvider>
     </ReduxProvider>
   );
-}
+};
 
 export default App;

@@ -1,7 +1,11 @@
 import { Breadcrumbs as MuiBreadcrumbs, Link, Typography, Box } from '@mui/material';
+import type { FunctionComponent } from 'react';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 
-export default function Breadcrumbs() {
+/**
+ * Breadcrumbs component to display the navigation path on each page.
+ */
+const Breadcrumbs: FunctionComponent = () => {
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x);
 
@@ -34,4 +38,6 @@ export default function Breadcrumbs() {
       </MuiBreadcrumbs>
     </Box>
   );
-}
+};
+
+export default Breadcrumbs;

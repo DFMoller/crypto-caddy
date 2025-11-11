@@ -19,7 +19,7 @@ interface CurrencyProviderProps {
  *
  * @param children - The child components that will have access to the currency context.
  */
-export function CurrencyProvider({ children }: CurrencyProviderProps) {
+export const CurrencyProvider = ({ children }: CurrencyProviderProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read currency from URL, default to ZAR.
@@ -38,4 +38,4 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
   };
 
   return <CurrencyContext.Provider value={{ currency, setCurrency }}>{children}</CurrencyContext.Provider>;
-}
+};

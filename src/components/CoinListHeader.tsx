@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import type { FunctionComponent } from 'react';
 
 /**
- * Column headers for the cryptocurrency list table.
+ * Column headers for the list of coins displayed on the dashboard.
  */
 const CoinListHeader: FunctionComponent = () => {
   return (

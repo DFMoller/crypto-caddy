@@ -21,7 +21,7 @@ type TimeRange = '24h' | '3d' | '7d' | '1M' | '1Y';
 /**
  * Maps UI time range to API days parameter.
  */
-function getApiDays(timeRange: TimeRange): string {
+const getApiDays = (timeRange: TimeRange): string => {
   const mapping: Record<TimeRange, string> = {
     '24h': '1',
     '3d': '3',
@@ -30,7 +30,7 @@ function getApiDays(timeRange: TimeRange): string {
     '1Y': '365',
   };
   return mapping[timeRange];
-}
+};
 
 /**
  * Chart data point with value property for display.
@@ -421,7 +421,7 @@ interface DataRowProps {
  * @param valueColor - Optional color for the value text (default: white)
  * @returns A styled data row component
  */
-function DataRow({ label, value, valueColor = '#FFFFFF' }: DataRowProps) {
+const DataRow: FunctionComponent<DataRowProps> = ({ label, value, valueColor = '#FFFFFF' }) => {
   return (
     <Box
       sx={{
@@ -440,6 +440,6 @@ function DataRow({ label, value, valueColor = '#FFFFFF' }: DataRowProps) {
       </Typography>
     </Box>
   );
-}
+};
 
 export default CoinDetails;

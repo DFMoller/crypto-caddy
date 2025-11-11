@@ -1,8 +1,13 @@
 import { AppBar, Toolbar, Typography, Select, MenuItem, Box } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import { useCurrency } from '../hooks/useCurrency';
+import type { FunctionComponent } from 'react';
 
-export default function Header() {
+/**
+ * Header component for the application.
+ * Importantly, includes the currency selector dropdown.
+ */
+const Header: FunctionComponent = () => {
   const { currency, setCurrency } = useCurrency();
 
   const handleCurrencyChange = (event: SelectChangeEvent) => {
@@ -47,4 +52,6 @@ export default function Header() {
       </Toolbar>
     </AppBar>
   );
-}
+};
+
+export default Header;

@@ -6,10 +6,10 @@ import { CurrencyContext, type CurrencyContextType } from '../contexts/currencyC
  *
  * @returns The current currency and a function to set the currency.
  */
-export function useCurrency(): CurrencyContextType {
+export const useCurrency = (): CurrencyContextType => {
   const context = useContext(CurrencyContext);
   if (context === undefined) {
     throw new Error('useCurrency must be used within a CurrencyProvider');
   }
   return context;
-}
+};

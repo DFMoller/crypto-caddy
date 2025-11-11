@@ -7,12 +7,14 @@ This directory contains the Cloudflare Tunnel configuration for exposing the cry
 ### 1. Install cloudflared
 
 **Linux (Debian/Ubuntu):**
+
 ```bash
 wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
 sudo dpkg -i cloudflared-linux-amd64.deb
 ```
 
 **macOS:**
+
 ```bash
 brew install cloudflared
 ```
@@ -35,6 +37,7 @@ cloudflared tunnel create crypto-caddy
 ```
 
 **Output example:**
+
 ```
 Tunnel credentials written to /home/user/.cloudflared/12345678-abcd-1234-abcd-123456789abc.json
 Created tunnel crypto-caddy with id 12345678-abcd-1234-abcd-123456789abc
@@ -70,6 +73,7 @@ cloudflared tunnel route dns crypto-caddy crypto.lunarlab.co.za
 ```
 
 This automatically creates a CNAME record in Cloudflare DNS:
+
 - `crypto.lunarlab.co.za` → `YOUR_TUNNEL_UUID.cfargotunnel.com`
 
 ### 7. Start the Services
@@ -114,21 +118,25 @@ If you prefer using the Cloudflare web dashboard:
 ## Useful Commands
 
 ### List all tunnels
+
 ```bash
 cloudflared tunnel list
 ```
 
 ### Get detailed tunnel information
+
 ```bash
 cloudflared tunnel info crypto-caddy
 ```
 
 ### View tunnel routes
+
 ```bash
 cloudflared tunnel route dns --show
 ```
 
 ### Delete a tunnel
+
 ```bash
 # First, remove the DNS route
 cloudflared tunnel route dns --delete crypto.lunarlab.co.za
@@ -138,6 +146,7 @@ cloudflared tunnel delete crypto-caddy
 ```
 
 ### Clean up stale connections
+
 ```bash
 cloudflared tunnel cleanup crypto-caddy
 ```
@@ -147,11 +156,13 @@ cloudflared tunnel cleanup crypto-caddy
 ### Tunnel not connecting
 
 1. Check container logs:
+
    ```bash
    docker-compose logs cloudflared
    ```
 
 2. Verify credentials file exists:
+
    ```bash
    ls -la cloudflared/credentials.json
    ```
@@ -164,6 +175,7 @@ cloudflared tunnel cleanup crypto-caddy
 ### Permission errors
 
 Ensure credentials.json has correct permissions:
+
 ```bash
 chmod 600 cloudflared/credentials.json
 ```
@@ -171,6 +183,7 @@ chmod 600 cloudflared/credentials.json
 ### Tunnel shows as unhealthy
 
 1. Verify the crypto-caddy-app container is running:
+
    ```bash
    docker-compose ps crypto-caddy
    ```

@@ -1,10 +1,14 @@
 import { Box, Skeleton, Card, CardContent } from '@mui/material';
+import type { FunctionComponent } from 'react';
 
 interface LoadingSkeletonProps {
   count?: number;
 }
 
-export default function LoadingSkeleton({ count = 2 }: LoadingSkeletonProps) {
+/**
+ * Loading skeleton for the CoinCard components in the coin list.
+ */
+const LoadingSkeleton: FunctionComponent<LoadingSkeletonProps> = ({ count = 2 }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {Array.from({ length: count }).map((_, index) => (
@@ -44,4 +48,6 @@ export default function LoadingSkeleton({ count = 2 }: LoadingSkeletonProps) {
       ))}
     </Box>
   );
-}
+};
+
+export default LoadingSkeleton;

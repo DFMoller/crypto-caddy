@@ -1,10 +1,11 @@
 import { Box, Skeleton, Card, CardContent } from '@mui/material';
+import type { FunctionComponent } from 'react';
 
 /**
  * Loading skeleton for the CoinDetails page.
  * Matches the layout of the actual details page with table and chart.
  */
-export default function DetailsSkeleton() {
+const DetailsSkeleton: FunctionComponent = () => {
   return (
     <Box>
       {/* Coin header skeleton (icon + name + prominent price). */}
@@ -87,4 +88,6 @@ export default function DetailsSkeleton() {
       </Box>
     </Box>
   );
-}
+};
+
+export default DetailsSkeleton;

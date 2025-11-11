@@ -6,6 +6,9 @@ interface CoinListProps {
   coins: Coin[];
 }
 
+/**
+ * Simply renders a list of CoinCard components for the given array of coins.
+ */
 const CoinList: FunctionComponent<CoinListProps> = ({ coins }: CoinListProps) => {
   return (
     // Coin Cards.

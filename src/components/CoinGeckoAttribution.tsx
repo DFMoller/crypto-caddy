@@ -1,4 +1,5 @@
 import { Box, Link, Typography } from '@mui/material';
+import type { FunctionComponent } from 'react';
 
 /**
  * CoinGecko attribution component.
@@ -7,7 +8,7 @@ import { Box, Link, Typography } from '@mui/material';
  * Positioned in the top-right corner, inline with breadcrumbs.
  * Required by CoinGecko API Terms of Service.
  */
-export default function CoinGeckoAttribution() {
+const CoinGeckoAttribution: FunctionComponent = () => {
   return (
     <Box
       sx={{
@@ -50,4 +51,6 @@ export default function CoinGeckoAttribution() {
       </Link>
     </Box>
   );
-}
+};
+
+export default CoinGeckoAttribution;

@@ -1,4 +1,4 @@
-export function generateSparklinePath(prices: number[], width: number = 120, height: number = 40): string {
+export const generateSparklinePath = (prices: number[], width: number = 120, height: number = 40): string => {
   if (!prices || prices.length === 0) return '';
 
   const min = Math.min(...prices);
@@ -18,9 +18,9 @@ export function generateSparklinePath(prices: number[], width: number = 120, hei
   });
 
   return points.join(' ');
-}
+};
 
-export function getSparklineTrend(prices: number[]): 'up' | 'down' | 'flat' {
+export const getSparklineTrend = (prices: number[]): 'up' | 'down' | 'flat' => {
   if (!prices || prices.length < 2) return 'flat';
   const first = prices[0];
   const last = prices[prices.length - 1];
@@ -28,4 +28,4 @@ export function getSparklineTrend(prices: number[]): 'up' | 'down' | 'flat' {
   if (change > 0.1) return 'up';
   if (change < -0.1) return 'down';
   return 'flat';
-}
+};

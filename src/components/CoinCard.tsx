@@ -17,6 +17,10 @@ interface CoinCardProps {
   sparklineData?: number[];
 }
 
+/**
+ * The CoinCard component displays a summary card for a cryptocurrency coin.
+ * The dashboard shows a list of these components.
+ */
 const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
   const {
     id,

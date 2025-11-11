@@ -6,7 +6,7 @@ import { type Currency } from '../constants/currencyConstants';
  * For large numbers (>= 1 billion), uses abbreviations (B, T).
  * For medium numbers (>= 1 million), uses M abbreviation.
  */
-export function formatNumber(num: number, currency?: Currency, useAbbreviation = true): string {
+export const formatNumber = (num: number, currency?: Currency, useAbbreviation = true): string => {
   // Special handling for Bitcoin - needs more decimal places.
   if (currency === 'BTC') {
     return num.toFixed(8);
@@ -30,22 +30,22 @@ export function formatNumber(num: number, currency?: Currency, useAbbreviation =
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
-}
+};
 
 /**
  * Formats a percentage value with + or - sign and 2 decimal places.
  */
-export function formatPercentage(value: number): string {
+export const formatPercentage = (value: number): string => {
   const sign = value > 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
-}
+};
 
 /**
  * Formats a supply number (no currency, just plain number formatting).
  */
-export function formatSupply(supply: number | null): string {
+export const formatSupply = (supply: number | null): string => {
   if (supply === null) {
     return 'N/A';
   }
   return formatNumber(supply, undefined, true);
-}
+};
