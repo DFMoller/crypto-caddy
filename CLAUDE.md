@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Crypto Caddy is a React + TypeScript application for displaying live cryptocurrency prices using the CoinGecko API. This is an Octoco coding assessment project focused on building a production-quality crypto dashboard with detailed coin information.
+Crypto Caddy is a React + TypeScript application for displaying live cryptocurrency prices using the CoinGecko API. This project focuses on building a production-quality crypto dashboard with detailed coin information.
 
 ## Development Commands
 
