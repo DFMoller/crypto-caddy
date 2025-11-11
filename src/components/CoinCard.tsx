@@ -12,8 +12,8 @@ interface CoinCardProps {
   image: string;
   marketCap: number;
   currentPrice: number;
-  priceChangePercentage24h?: number;
-  priceChangePercentage7d?: number;
+  priceChangePercentage24h?: number | null;
+  priceChangePercentage7d?: number | null;
   sparklineData?: number[];
 }
 
@@ -29,8 +29,8 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
     image,
     marketCap,
     currentPrice,
-    priceChangePercentage24h = 0,
-    priceChangePercentage7d = 0,
+    priceChangePercentage24h = null,
+    priceChangePercentage7d = null,
     sparklineData = [],
   } = props;
   const navigate = useNavigate();
@@ -46,7 +46,8 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
   };
 
   // Format percentage with 2 decimal places and + sign for positive values.
-  const formatPercentage = (percent: number) => {
+  const formatPercentage = (percent: number | null) => {
+    if (percent === null) return 'N/A';
     const sign = percent > 0 ? '+' : '';
     return `${sign}${percent.toFixed(2)}%`;
   };
@@ -59,7 +60,8 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
   const sparklinePath = generateSparklinePath(sparklineData, 120, 40);
   const trend = getSparklineTrend(sparklineData);
   const sparklineColor = trend === 'up' ? '#4caf50' : trend === 'down' ? '#f44336' : '#B0B0B0';
-  const priceChangeColor = priceChangePercentage24h > 0 ? '#4caf50' : '#f44336';
+  const priceChangeColor =
+    priceChangePercentage24h === null ? '#B0B0B0' : priceChangePercentage24h > 0 ? '#4caf50' : '#f44336';
 
   return (
     <Card

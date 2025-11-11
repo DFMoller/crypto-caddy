@@ -231,7 +231,8 @@ const CoinDetails: FunctionComponent = () => {
             <Typography
               variant="body2"
               sx={{
-                color: coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336',
+                color:
+                  coinData.priceChange24h === null ? '#B0B0B0' : coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336',
                 textAlign: 'right',
                 fontWeight: 500,
               }}
@@ -272,22 +273,30 @@ const CoinDetails: FunctionComponent = () => {
                 <DataRow
                   label="24h Price Change"
                   value={formatPercentage(coinData.priceChange24h)}
-                  valueColor={coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange24h === null ? '#B0B0B0' : coinData.priceChange24h >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow
                   label="7d Price Change"
                   value={formatPercentage(coinData.priceChange7d)}
-                  valueColor={coinData.priceChange7d >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange7d === null ? '#B0B0B0' : coinData.priceChange7d >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow
                   label="30d Price Change"
                   value={formatPercentage(coinData.priceChange30d)}
-                  valueColor={coinData.priceChange30d >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange30d === null ? '#B0B0B0' : coinData.priceChange30d >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow
                   label="1y Price Change"
                   value={formatPercentage(coinData.priceChange1y)}
-                  valueColor={coinData.priceChange1y >= 0 ? '#4caf50' : '#f44336'}
+                  valueColor={
+                    coinData.priceChange1y === null ? '#B0B0B0' : coinData.priceChange1y >= 0 ? '#4caf50' : '#f44336'
+                  }
                 />
                 <DataRow label="All-Time High" value={formatCurrency(coinData.allTimeHigh, currency)} />
                 <DataRow label="All-Time Low" value={formatCurrency(coinData.allTimeLow, currency)} />
