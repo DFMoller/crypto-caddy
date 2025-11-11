@@ -95,14 +95,14 @@ const CoinCard: FunctionComponent<CoinCardProps> = (props) => {
         {/* Data columns grouped on the right */}
         <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
           {/* Market Cap */}
-          <Box sx={{ minWidth: 180, textAlign: 'right' }}>
+          <Box sx={{ minWidth: 180, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
             <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
               {currencySymbol} {formatNumber(marketCap)}
             </Typography>
           </Box>
 
           {/* Current Price */}
-          <Box sx={{ minWidth: 120, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
+          <Box sx={{ minWidth: 120, textAlign: 'right' }}>
             <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
               {currencySymbol} {formatNumber(currentPrice)}
             </Typography>

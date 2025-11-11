@@ -26,14 +26,14 @@ const CoinListHeader: FunctionComponent = () => {
       {/* Data columns grouped on the right. */}
       <Box sx={{ display: 'flex', gap: 3 }}>
         {/* Market Cap header. */}
-        <Box sx={{ minWidth: 180, textAlign: 'right' }}>
+        <Box sx={{ minWidth: 180, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             Market Cap
           </Typography>
         </Box>
 
         {/* Price header. */}
-        <Box sx={{ minWidth: 120, textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
+        <Box sx={{ minWidth: 120, textAlign: 'right' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
             Price
           </Typography>
