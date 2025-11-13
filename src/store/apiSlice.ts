@@ -95,7 +95,7 @@ const runtimeConfig = getRuntimeConfig();
 // more heavily.
 const API_KEY = runtimeConfig.COINGECKO_API_KEY || import.meta.env.VITE_COINGECKO_API_KEY;
 const BASE_URL =
-  runtimeConfig.COINGECKO_BASE_URL || import.meta.env.VITE_COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3';
+  runtimeConfig.COINGECKO_BASE_URL || import.meta.env.VITE_COINGECKO_BASE_URL || '/api';
 
 // Log API key usage for debugging.
 if (API_KEY) {

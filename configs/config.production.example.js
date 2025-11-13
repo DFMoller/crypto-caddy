@@ -14,6 +14,7 @@ window.APP_CONFIG = {
   COINGECKO_API_KEY: 'CG-your-actual-key-here',
 
   // Optional: Custom CoinGecko API base URL.
-  // Leave as null to use default: https://api.coingecko.com/api/v3
+  // Leave as null to use default: /api (proxied through nginx to avoid CORS).
+  // Set to 'https://api.coingecko.com/api/v3' for direct API access (requires CORS support).
   COINGECKO_BASE_URL: null,
 };
